@@ -1,11 +1,16 @@
 import express, { type Request, type Response } from "express";
-import authRouter from "./controllers/auth";
+import authRouter from "./routers/auth";
+import "dotenv/config";
+import connectDB from "./dal/mongoDB/connect";
 
+/* const PORT = process.env.PORT ?? 5001;
 const app = express();
 app.use(express.json());
-const port = 5001;
-app.use(authRouter);
+app.use("/auth", authRouter);
 app.get("/", (req: Request, response: Response) => {
     response.send("Hello world!");
-});
-app.listen(port, () => { console.log(`Running on port ${port}`); });
+}); */
+connectDB();
+/* app.listen(PORT, () => {
+    console.log(`Running on port ${PORT}`);
+}); */
