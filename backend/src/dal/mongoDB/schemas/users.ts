@@ -1,4 +1,4 @@
-import { Schema, model } from "mongoose";
+import { Schema, model, type Types, type Document } from "mongoose";
 import type IUser from "../../models/interfaces/IUser";
 
 const UserSchema = new Schema<IUser>({
@@ -13,4 +13,7 @@ const UserSchema = new Schema<IUser>({
 });
 
 const UserModel = model<IUser>("user", UserSchema);
+
+export type IUserDB = Document<unknown, {}, IUser> &
+    IUser & { _id: Types.ObjectId };
 export default UserModel;

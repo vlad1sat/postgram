@@ -11,7 +11,7 @@ const errorMiddleware = (
         console.log(err.errors);
         return res.status(err.status).json(err.odjMessage());
     }
-    return res.status(500).json("Ошибка сервера!");
+    return res.status(500).json(`Ошибка сервера! ${String(err)}`);
 };
 
 export default errorMiddleware;

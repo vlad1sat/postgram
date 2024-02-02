@@ -2,7 +2,11 @@ import { type NextFunction, type Request, type Response } from "express";
 import UserModel from "../dal/models/User";
 import type IRequestUser from "../interfaces/IRequestUser";
 import AuthService from "../servises/AuthService";
-import { Result, ValidationError, validationResult } from "express-validator";
+import {
+    type Result,
+    type ValidationError,
+    validationResult,
+} from "express-validator";
 import ApiError from "../utils/logicErrors/ApiError";
 class AuthController {
     async registration(
@@ -16,9 +20,18 @@ class AuthController {
                 next(ApiError.BadRequest("Ошибка валидации", errors.array()));
                 return;
             }
-            const user = req.body as IRequestUser;
-            await AuthService.registration(user);
-            res.sendStatus(201);
+            const {
+                tokens: { accessToken, refreshToken },
+                user,
+            } = await AuthService.registration(req.body as IRequestUser);
+            res.cookie("refreshToken", refreshToken, {
+                maxAge: 30 * 24 * 60 * 60 * 1000,
+                httpOnly: true,
+            });
+            res.status(201).json({
+                accessToken,
+                user,
+            });
         } catch (e) {
             next(e);
         }
