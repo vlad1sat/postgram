@@ -7,13 +7,15 @@ import TokenService, {
     type IGenerateTokens,
 } from "../utils/token/TokenService";
 import UserDto, { type IUserDto } from "../utils/token/UserDto";
+import type IRequestLoginUser from "../interfaces/IRequestLoginUser";
+import tokenService from "../utils/token/TokenService";
 
 class AuthService {
     async registration(
         user: IRequestUser,
     ): Promise<{ tokens: IGenerateTokens; user: IUserDto }> {
         const { username, email, password } = user;
-        const userDB = await UserModel.findOne({
+        const userDB: IUserDB | null = await UserModel.findOne({
             $or: [{ username }, { email }],
         });
         if (userDB !== null) {
@@ -27,7 +29,7 @@ class AuthService {
         );
 
         const newUser: IUserDto = new UserDto(createdUserDB);
-        const tokens = TokenService.generateToken({
+        const tokens: IGenerateTokens = TokenService.generateToken({
             ...newUser,
         });
 
@@ -37,7 +39,33 @@ class AuthService {
         };
     }
 
-    login() {}
+    async login(
+        userData: IRequestLoginUser,
+    ): Promise<{ tokens: IGenerateTokens; user: IUserDto }> {
+        const { login, password: passwordData } = userData;
+        const user: IUserDB | null = await UserModel.findOne({
+            $or: [{ username: login }, { email: login }],
+        });
+        if (user == null) {
+            throw ApiError.BadRequest("Такого пользователя не существует!");
+        }
+        const { password } = user;
+        const isCorrectPassword: boolean = await bcrypt.compare(
+            passwordData,
+            password,
+        );
+        if (!isCorrectPassword) {
+            throw ApiError.BadRequest("Неверный пароль!");
+        }
+        const userDto: UserDto = new UserDto(user);
+        const tokens: IGenerateTokens = TokenService.generateToken({
+            ...userDto,
+        });
+        return {
+            tokens,
+            user: userDto,
+        };
+    }
 
     refresh() {}
 }

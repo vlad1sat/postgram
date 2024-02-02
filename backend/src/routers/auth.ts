@@ -3,7 +3,12 @@ import AuthController from "../controllers/AuthController";
 import { body } from "express-validator";
 const authRouter = Router();
 
-authRouter.get("/login", AuthController.login);
+authRouter.post(
+    "/login",
+    body("login").notEmpty().isString(),
+    body("password").notEmpty().isString().isLength({ min: 8 }),
+    AuthController.login,
+);
 
 authRouter.post(
     "/registration",
