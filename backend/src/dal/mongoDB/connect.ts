@@ -4,10 +4,10 @@ const connectDB = async (): Promise<void> => {
         await mongoose.connect(process.env.DB_CONNECT ?? "");
     } catch (e) {
         console.log(e);
-    } finally {
+    } /* finally {
         await mongoose.disconnect();
         console.log("DB Disconnect");
-    }
+    } */
 };
 
 export default connectDB;

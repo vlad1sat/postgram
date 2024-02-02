@@ -1,22 +1,18 @@
-import { type Request, type Response, Router } from "express";
-
+import { Router } from "express";
+import AuthController from "../controllers/AuthController";
+import { body } from "express-validator";
 const authRouter = Router();
 
-authRouter.get("/login", (req: Request, res: Response) => {
-    res.json({
-        prop: "h1",
-    });
-});
+authRouter.get("/login", AuthController.login);
 
-authRouter.post("/registration", (req: Request, res: Response) => {
-    const { username, password } = req.body;
-    if (typeof username !== "string" || typeof password !== "string") {
-        return res.status(400).json({ err: ["Некорректные данные!"] });
-    }
+authRouter.post(
+    "/registration",
+    body("username").notEmpty().isString().isLength({ min: 5, max: 20 }),
+    body("email").isEmail(),
+    body("password").notEmpty().isString().isLength({ min: 8 }),
+    AuthController.registration,
+);
 
-    res.status(201).json({
-        username,
-    });
-});
+authRouter.get("/refresh", AuthController.refresh);
 
 export default authRouter;

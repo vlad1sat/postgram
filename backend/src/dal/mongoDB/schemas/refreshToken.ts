@@ -6,4 +6,5 @@ const RefreshTokenSchema = new Schema<IRefreshToken>({
     userID: { type: "String", required: true },
 });
 
-export default model<IRefreshToken>("refreshToken", RefreshTokenSchema);
+const RefreshModel = model<IRefreshToken>("refreshToken", RefreshTokenSchema);
+export default RefreshModel;

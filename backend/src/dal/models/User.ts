@@ -1,4 +1,5 @@
 import type IUser from "./interfaces/IUser";
+import type IRequestUser from "../../interfaces/IRequestUser";
 
 export default class User implements IUser {
     email: string;
@@ -6,7 +7,7 @@ export default class User implements IUser {
     password: string;
     createAt: string;
 
-    constructor(user: Omit<IUser, "createAt">) {
+    constructor(user: IRequestUser) {
         const { username, password, email } = user;
         this.email = email;
         this.password = password;
