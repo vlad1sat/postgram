@@ -8,7 +8,8 @@ import TokenService, {
 } from "../utils/token/TokenService";
 import UserDto, { type IUserDto } from "../utils/token/UserDto";
 import type IRequestLoginUser from "../interfaces/IRequestLoginUser";
-import tokenService from "../utils/token/TokenService";
+import RefreshModel from "../dal/mongoDB/schemas/refreshToken";
+import RefreshToken from "../dal/models/RefreshToken";
 
 class AuthService {
     async registration(
@@ -32,7 +33,7 @@ class AuthService {
         const tokens: IGenerateTokens = TokenService.generateToken({
             ...newUser,
         });
-
+        await TokenService.saveToken(newUser.id, tokens.refreshToken);
         return {
             tokens,
             user: newUser,
@@ -61,6 +62,7 @@ class AuthService {
         const tokens: IGenerateTokens = TokenService.generateToken({
             ...userDto,
         });
+        await TokenService.saveToken(userDto.id, tokens.refreshToken);
         return {
             tokens,
             user: userDto,
