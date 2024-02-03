@@ -1,6 +1,8 @@
+import { type Types } from "mongoose";
+
 interface IRefreshToken {
     refreshToken: string;
-    userID: string;
+    userID: Types.ObjectId;
 }
 
 export default IRefreshToken;

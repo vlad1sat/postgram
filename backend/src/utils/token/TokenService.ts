@@ -3,6 +3,7 @@ import RefreshModel, {
     type ITokenDB,
 } from "../../dal/mongoDB/schemas/refreshToken";
 import RefreshToken from "../../dal/models/RefreshToken";
+import { type Types } from "mongoose";
 
 class TokenService {
     generateToken<T extends object>(payload: T): IGenerateTokens {
@@ -18,9 +19,9 @@ class TokenService {
         };
     }
 
-    async saveToken(userID: string, token: string): Promise<void> {
+    async saveToken(userID: Types.ObjectId, token: string): Promise<void> {
         const tokenDB: ITokenDB | null = await RefreshModel.findOne({
-            userID: userID,
+            userID,
         });
         if (tokenDB !== null) {
             tokenDB.refreshToken = token;
