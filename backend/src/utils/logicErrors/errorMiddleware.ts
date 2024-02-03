@@ -8,7 +8,6 @@ const errorMiddleware = (
     next: NextFunction,
 ): Response => {
     if (err instanceof ApiError) {
-        console.log(err.errors);
         return res.status(err.status).json(err.odjMessage());
     }
     return res.status(500).json(`Ошибка сервера! ${String(err)}`);

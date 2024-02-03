@@ -4,15 +4,14 @@ import "dotenv/config";
 import connectDB from "./dal/mongoDB/connect";
 import errorMiddleware from "./utils/logicErrors/errorMiddleware";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 
 const PORT = process.env.PORT ?? 5001;
 const app = express();
 app.use(express.json());
+app.use(cookieParser());
 app.use(cors());
 app.use("/auth", authRouter);
-app.get("/", (req: Request, response: Response) => {
-    response.send("Hello world!");
-});
 app.use(errorMiddleware);
 connectDB();
 app.listen(PORT, () => {

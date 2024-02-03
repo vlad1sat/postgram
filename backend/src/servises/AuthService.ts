@@ -3,17 +3,19 @@ import UserModel, { type IUserDB } from "../dal/mongoDB/schemas/users";
 import bcrypt from "bcrypt";
 import User from "../dal/models/User";
 import ApiError from "../utils/logicErrors/ApiError";
-import TokenService, {
+import TokenService from "../utils/token/TokenService";
+import tokenService, {
     type IGenerateTokens,
 } from "../utils/token/TokenService";
 import UserDto, { type IUserDto } from "../utils/token/UserDto";
 import type IRequestLoginUser from "../interfaces/IRequestLoginUser";
+import { type ITokenDB } from "../dal/mongoDB/schemas/refreshToken";
+import type IResponseAuth from "../interfaces/IResponseAuth";
 
 class AuthService {
-    async registration(
-        user: IRequestUser,
-    ): Promise<{ tokens: IGenerateTokens; user: IUserDto }> {
+    async registration(user: IRequestUser): Promise<IResponseAuth> {
         const { username, email, password } = user;
+        //
         const userDB: IUserDB | null = await UserModel.findOne({
             $or: [{ username }, { email }],
         });
@@ -23,6 +25,7 @@ class AuthService {
             );
         }
         const hashPassword: string = await bcrypt.hash(password, 5);
+        //
         const createdUserDB: IUserDB = await UserModel.create(
             new User({ ...user, password: hashPassword }),
         );
@@ -38,10 +41,9 @@ class AuthService {
         };
     }
 
-    async login(
-        userData: IRequestLoginUser,
-    ): Promise<{ tokens: IGenerateTokens; user: IUserDto }> {
+    async login(userData: IRequestLoginUser): Promise<IResponseAuth> {
         const { login, password: passwordData } = userData;
+        //
         const user: IUserDB | null = await UserModel.findOne({
             $or: [{ username: login }, { email: login }],
         });
@@ -67,7 +69,42 @@ class AuthService {
         };
     }
 
-    refresh() {}
+    async refresh(refreshToken: string): Promise<IResponseAuth> {
+        if (refreshToken === null || refreshToken === undefined) {
+            throw ApiError.Unauthorized();
+        }
+        const userTokenDto = tokenService.correctRefreshToken(refreshToken);
+        const tokenDB: ITokenDB | null =
+            await tokenService.findRefreshTokenDB(refreshToken);
+        if (userTokenDto == null || tokenDB == null) {
+            throw ApiError.Unauthorized();
+        }
+        const id =
+            typeof userTokenDto === "string"
+                ? userTokenDto
+                : "id" in userTokenDto
+                  ? userTokenDto.id
+                  : "";
+        const userDB: IUserDB | null = await UserModel.findById(id);
+        if (userDB == null) {
+            throw ApiError.Unauthorized();
+        }
+        const responseAuth: IResponseAuth =
+            await AuthService.tokenUserLogic(userDB);
+        return responseAuth;
+    }
+
+    private static async tokenUserLogic(user: IUserDB): Promise<IResponseAuth> {
+        const userDto: UserDto = new UserDto(user);
+        const tokens: IGenerateTokens = TokenService.generateToken({
+            ...userDto,
+        });
+        await TokenService.saveToken(user._id, tokens.refreshToken);
+        return {
+            tokens,
+            user: userDto,
+        };
+    }
 }
 
 export default new AuthService();

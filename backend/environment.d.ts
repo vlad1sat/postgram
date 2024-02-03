@@ -3,10 +3,10 @@ declare global {
         interface ProcessEnv {
             PORT?: string;
             DB_CONNECT: string;
+            SECRET_ACCESS_KEY_TOKEN: string;
+            SECRET_REFRESH_KEY_TOKEN: string;
         }
     }
 }
 
-// If this file has no import/export statements (i.e. is a script)
-// convert it into a module by adding an empty export statement.
 export {};
