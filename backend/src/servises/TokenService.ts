@@ -1,10 +1,10 @@
 import jwt from "jsonwebtoken";
+import { type Types } from "mongoose";
+import defaultEnv from "../defaultEnv";
 import RefreshModel, {
     type ITokenDB,
-} from "../../dal/mongoDB/schemas/refreshToken";
-import RefreshToken from "../../dal/models/RefreshToken";
-import { type Types } from "mongoose";
-import defaultEnv from "../../defaultEnv";
+} from "../dal/mongoDB/schemas/refreshToken";
+import RefreshToken from "../dal/models/RefreshToken";
 
 const accessKey: string =
     process.env.SECRET_ACCESS_KEY_TOKEN ?? defaultEnv.SECRET_ACCESS_KEY_TOKEN;
@@ -12,13 +12,16 @@ const accessKey: string =
 const refreshKey: string =
     process.env.SECRET_REFRESH_KEY_TOKEN ?? defaultEnv.SECRET_REFRESH_KEY_TOKEN;
 
+const timeRefreshToken: string =
+    process.env.VALID_TIME_REFRESH_TOKEN_DAY ??
+    defaultEnv.VALID_TIME_REFRESH_TOKEN_DAY;
 class TokenService {
     generateToken<T extends object>(payload: T): IGenerateTokens {
         const accessToken: string = jwt.sign(payload, accessKey, {
             expiresIn: "30m",
         });
         const refreshToken: string = jwt.sign(payload, refreshKey, {
-            expiresIn: "30d",
+            expiresIn: timeRefreshToken + "d",
         });
         return {
             accessToken,

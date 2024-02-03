@@ -1,13 +1,18 @@
 import { type NextFunction, type Request, type Response } from "express";
 import type IRequestUser from "../interfaces/IRequestUser";
 import AuthService from "../servises/AuthService";
-import { type Result, type ValidationError, validationResult } from "express-validator";
+import {
+    type Result,
+    type ValidationError,
+    validationResult,
+} from "express-validator";
 import ApiError from "../utils/logicErrors/ApiError";
 import type IRequestLoginUser from "../interfaces/IRequestLoginUser";
-import TokenService, { type IGenerateTokens } from "../utils/token/TokenService";
+
 import { type IUserDto } from "../utils/token/UserDto";
 import type CookieRefreshTokenRequest from "../utils/token/CookieRefreshTokenRequest";
 import type IResponseAuth from "../interfaces/IResponseAuth";
+import TokenService, { type IGenerateTokens } from "../servises/TokenService";
 
 class AuthController {
     async registration(

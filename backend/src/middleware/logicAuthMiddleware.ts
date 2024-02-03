@@ -1,7 +1,7 @@
 import { type NextFunction, type Request, type Response } from "express";
-import { header } from "express-validator";
 import ApiError from "../utils/logicErrors/ApiError";
-import TokenService from "../utils/token/TokenService";
+import TokenService from "../servises/TokenService";
+
 const authMiddleware = (
     req: Request,
     res: Response,
@@ -24,4 +24,5 @@ const authMiddleware = (
         next(ApiError.Unauthorized());
     }
 };
+
 export default authMiddleware;

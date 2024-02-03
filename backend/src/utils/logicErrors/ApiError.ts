@@ -1,3 +1,5 @@
+import IApiErrorMessage from "./IApiErrorMessage";
+
 export default class ApiError extends Error {
     status: number;
     errors: unknown[] = [];
@@ -16,7 +18,7 @@ export default class ApiError extends Error {
         return new ApiError(400, message, errors);
     }
 
-    odjMessage(): object {
+    odjMessage(): IApiErrorMessage {
         const { message, errors } = this;
         return {
             message,

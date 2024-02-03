@@ -1,56 +1,44 @@
 import type IRequestUser from "../interfaces/IRequestUser";
-import UserModel, { type IUserDB } from "../dal/mongoDB/schemas/users";
+import { type IUserDB } from "../dal/mongoDB/schemas/users";
 import bcrypt from "bcrypt";
 import User from "../dal/models/User";
 import ApiError from "../utils/logicErrors/ApiError";
-import TokenService from "../utils/token/TokenService";
-import tokenService, {
-    type IGenerateTokens,
-} from "../utils/token/TokenService";
-import UserDto, { type IUserDto } from "../utils/token/UserDto";
+import UserDto from "../utils/token/UserDto";
 import type IRequestLoginUser from "../interfaces/IRequestLoginUser";
 import { type ITokenDB } from "../dal/mongoDB/schemas/refreshToken";
 import type IResponseAuth from "../interfaces/IResponseAuth";
+import UserService from "./UserService";
+import TokenService, { type IGenerateTokens } from "./TokenService";
 
 class AuthService {
     async registration(user: IRequestUser): Promise<IResponseAuth> {
         const { username, email, password } = user;
-        //
-        const userDB: IUserDB | null = await UserModel.findOne({
-            $or: [{ username }, { email }],
-        });
+        const userDB: IUserDB | null = await UserService.findUserDBByFilter(
+            { username },
+            { email },
+        );
         if (userDB !== null) {
             throw ApiError.BadRequest(
                 "Пользователь с такими данными уже существует!",
             );
         }
         const hashPassword: string = await bcrypt.hash(password, 5);
-        //
-        const createdUserDB: IUserDB = await UserModel.create(
+        const createdUserDB: IUserDB = await UserService.createUserDB(
             new User({ ...user, password: hashPassword }),
         );
-
-        const newUser: IUserDto = new UserDto(createdUserDB);
-        const tokens: IGenerateTokens = TokenService.generateToken({
-            ...newUser,
-        });
-        await TokenService.saveRefreshTokenDB(createdUserDB._id, tokens.refreshToken);
-        return {
-            tokens,
-            user: newUser,
-        };
+        return await AuthService.tokenUserLogic(createdUserDB);
     }
 
     async login(userData: IRequestLoginUser): Promise<IResponseAuth> {
         const { login, password: passwordData } = userData;
-        //
-        const user: IUserDB | null = await UserModel.findOne({
-            $or: [{ username: login }, { email: login }],
-        });
-        if (user == null) {
+        const userDB: IUserDB | null = await UserService.findUserDBByFilter(
+            { username: login },
+            { email: login },
+        );
+        if (userDB == null) {
             throw ApiError.BadRequest("Такого пользователя не существует!");
         }
-        const { password } = user;
+        const { password } = userDB;
         const isCorrectPassword: boolean = await bcrypt.compare(
             passwordData,
             password,
@@ -58,24 +46,16 @@ class AuthService {
         if (!isCorrectPassword) {
             throw ApiError.BadRequest("Неверный пароль!");
         }
-        const userDto: UserDto = new UserDto(user);
-        const tokens: IGenerateTokens = TokenService.generateToken({
-            ...userDto,
-        });
-        await TokenService.saveRefreshTokenDB(user._id, tokens.refreshToken);
-        return {
-            tokens,
-            user: userDto,
-        };
+        return await AuthService.tokenUserLogic(userDB);
     }
 
     async refresh(refreshToken: string): Promise<IResponseAuth> {
         if (refreshToken === null || refreshToken === undefined) {
             throw ApiError.Unauthorized();
         }
-        const userTokenDto = tokenService.correctRefreshToken(refreshToken);
+        const userTokenDto = TokenService.correctRefreshToken(refreshToken);
         const tokenDB: ITokenDB | null =
-            await tokenService.findRefreshTokenDB(refreshToken);
+            await TokenService.findRefreshTokenDB(refreshToken);
         if (
             userTokenDto == null ||
             tokenDB == null ||
@@ -85,15 +65,13 @@ class AuthService {
             throw ApiError.Unauthorized();
         }
         //
-        const userDB: IUserDB | null = await UserModel.findById(
+        const userDB: IUserDB | null = await UserService.findUserDBByID(
             userTokenDto.id,
         );
         if (userDB == null) {
             throw ApiError.Unauthorized();
         }
-        const responseAuth: IResponseAuth =
-            await AuthService.tokenUserLogic(userDB);
-        return responseAuth;
+        return await AuthService.tokenUserLogic(userDB);
     }
 
     private static async tokenUserLogic(user: IUserDB): Promise<IResponseAuth> {

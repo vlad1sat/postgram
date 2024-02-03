@@ -12,7 +12,9 @@ const UserSchema = new Schema<IUser>({
     },
 });
 
-const UserModel = model<IUser>("user", UserSchema);
+export const userDBName: string = "user";
+
+const UserModel = model<IUser>(userDBName, UserSchema);
 
 export type IUserDB = Document<unknown, {}, IUser> &
     IUser & { _id: Types.ObjectId };

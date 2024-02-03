@@ -1,5 +1,5 @@
-import type { IGenerateTokens } from "../utils/token/TokenService";
 import type { IUserDto } from "../utils/token/UserDto";
+import { type IGenerateTokens } from "../servises/TokenService";
 
 interface IResponseAuth {
     tokens: IGenerateTokens;
