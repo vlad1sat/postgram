@@ -34,7 +34,7 @@ class AuthService {
         const tokens: IGenerateTokens = TokenService.generateToken({
             ...newUser,
         });
-        await TokenService.saveToken(createdUserDB._id, tokens.refreshToken);
+        await TokenService.saveRefreshTokenDB(createdUserDB._id, tokens.refreshToken);
         return {
             tokens,
             user: newUser,
@@ -62,7 +62,7 @@ class AuthService {
         const tokens: IGenerateTokens = TokenService.generateToken({
             ...userDto,
         });
-        await TokenService.saveToken(user._id, tokens.refreshToken);
+        await TokenService.saveRefreshTokenDB(user._id, tokens.refreshToken);
         return {
             tokens,
             user: userDto,
@@ -76,16 +76,18 @@ class AuthService {
         const userTokenDto = tokenService.correctRefreshToken(refreshToken);
         const tokenDB: ITokenDB | null =
             await tokenService.findRefreshTokenDB(refreshToken);
-        if (userTokenDto == null || tokenDB == null) {
+        if (
+            userTokenDto == null ||
+            tokenDB == null ||
+            typeof userTokenDto === "string" ||
+            !("id" in userTokenDto)
+        ) {
             throw ApiError.Unauthorized();
         }
-        const id =
-            typeof userTokenDto === "string"
-                ? userTokenDto
-                : "id" in userTokenDto
-                  ? userTokenDto.id
-                  : "";
-        const userDB: IUserDB | null = await UserModel.findById(id);
+        //
+        const userDB: IUserDB | null = await UserModel.findById(
+            userTokenDto.id,
+        );
         if (userDB == null) {
             throw ApiError.Unauthorized();
         }
@@ -99,7 +101,7 @@ class AuthService {
         const tokens: IGenerateTokens = TokenService.generateToken({
             ...userDto,
         });
-        await TokenService.saveToken(user._id, tokens.refreshToken);
+        await TokenService.saveRefreshTokenDB(user._id, tokens.refreshToken);
         return {
             tokens,
             user: userDto,

@@ -52,7 +52,14 @@ class TokenService {
         return tokenDB;
     }
 
-    async saveToken(userID: Types.ObjectId, token: string): Promise<void> {
+    async removeRefreshTokenDB(refreshToken: string): Promise<void> {
+        await RefreshModel.deleteOne({ refreshToken });
+    }
+
+    async saveRefreshTokenDB(
+        userID: Types.ObjectId,
+        token: string,
+    ): Promise<void> {
         const tokenDB: ITokenDB | null = await RefreshModel.findOne({
             userID,
         });

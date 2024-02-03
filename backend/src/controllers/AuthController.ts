@@ -1,14 +1,10 @@
 import { type NextFunction, type Request, type Response } from "express";
 import type IRequestUser from "../interfaces/IRequestUser";
 import AuthService from "../servises/AuthService";
-import {
-    type Result,
-    type ValidationError,
-    validationResult,
-} from "express-validator";
+import { type Result, type ValidationError, validationResult } from "express-validator";
 import ApiError from "../utils/logicErrors/ApiError";
 import type IRequestLoginUser from "../interfaces/IRequestLoginUser";
-import { type IGenerateTokens } from "../utils/token/TokenService";
+import TokenService, { type IGenerateTokens } from "../utils/token/TokenService";
 import { type IUserDto } from "../utils/token/UserDto";
 import type CookieRefreshTokenRequest from "../utils/token/CookieRefreshTokenRequest";
 import type IResponseAuth from "../interfaces/IResponseAuth";
@@ -54,6 +50,24 @@ class AuthController {
                 next,
                 async () => await AuthService.refresh(refreshToken),
             );
+        } catch (e) {
+            next(e);
+        }
+    }
+
+    async logout(
+        req: CookieRefreshTokenRequest,
+        res: Response,
+        next: NextFunction,
+    ): Promise<void> {
+        try {
+            const { refreshToken } = req.cookies;
+            if (refreshToken === null) {
+                next(ApiError.Unauthorized());
+            }
+            await TokenService.removeRefreshTokenDB(refreshToken);
+            res.clearCookie("refreshToken");
+            res.sendStatus(200);
         } catch (e) {
             next(e);
         }
