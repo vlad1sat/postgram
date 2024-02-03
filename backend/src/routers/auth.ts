@@ -1,6 +1,6 @@
 import { Router } from "express";
 import AuthController from "../controllers/AuthController";
-import { body } from "express-validator";
+import { body, cookie } from "express-validator";
 const authRouter = Router();
 
 authRouter.post(
@@ -18,7 +18,16 @@ authRouter.post(
     AuthController.registration,
 );
 
-authRouter.get("/refresh", AuthController.refresh);
-authRouter.get("/logout", AuthController.logout);
+authRouter.get(
+    "/refresh",
+    cookie("refreshToken").notEmpty().isString(),
+    AuthController.refresh,
+);
+authRouter.get(
+    "/logout",
+    cookie("refreshToken").notEmpty().isString(),
+    AuthController.logout,
+);
+
 
 export default authRouter;
