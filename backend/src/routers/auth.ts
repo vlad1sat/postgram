@@ -1,32 +1,30 @@
 import { Router } from "express";
 import AuthController from "../controllers/AuthController";
-import { body, cookie } from "express-validator";
+
+import {
+    emailValidator,
+    loginValidator,
+    passwordValidator,
+    refreshTokenValidator,
+} from "../middleware/authMiddlewares";
 const authRouter = Router();
 
 authRouter.post(
     "/login",
-    body("login").notEmpty().isString(),
-    body("password").notEmpty().isString().isLength({ min: 8 }),
+    loginValidator("login"),
+    passwordValidator,
     AuthController.login,
 );
 
 authRouter.post(
     "/registration",
-    body("username").notEmpty().isString().isLength({ min: 5, max: 20 }),
-    body("email").isEmail(),
-    body("password").notEmpty().isString().isLength({ min: 8 }),
+    loginValidator("username"),
+    emailValidator,
+    passwordValidator,
     AuthController.registration,
 );
 
-authRouter.get(
-    "/refresh",
-    cookie("refreshToken").notEmpty().isString(),
-    AuthController.refresh,
-);
-authRouter.get(
-    "/logout",
-    cookie("refreshToken").notEmpty().isString(),
-    AuthController.logout,
-);
+authRouter.get("/refresh", refreshTokenValidator, AuthController.refresh);
+authRouter.get("/logout", refreshTokenValidator, AuthController.logout);
 
 export default authRouter;
