@@ -1,5 +1,6 @@
-import { Schema, model, type Types, type Document } from "mongoose";
+import { type Document, model, Schema, type Types } from "mongoose";
 import type IUser from "../../models/interfaces/IUser";
+import { postsDBName } from "./posts";
 
 const UserSchema = new Schema<IUser>({
     email: { type: "String", required: true, unique: true },
@@ -10,9 +11,17 @@ const UserSchema = new Schema<IUser>({
         required: true,
         default: new Date(Date.now()).toISOString(),
     },
+    posts: [
+        {
+            type: Schema.Types.ObjectId,
+            ref: postsDBName,
+            required: true,
+            default: [],
+        },
+    ],
 });
 
-export const userDBName: string = "user";
+export const userDBName: string = "users";
 
 const UserModel = model<IUser>(userDBName, UserSchema);
 

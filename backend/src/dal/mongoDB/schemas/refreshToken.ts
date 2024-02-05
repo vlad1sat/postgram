@@ -7,7 +7,7 @@ const RefreshTokenSchema = new Schema<IRefreshToken>({
     userID: { type: Schema.Types.ObjectId, ref: userDBName, required: true },
 });
 
-export const refreshTokenDBName: string = "refreshToken";
+export const refreshTokenDBName: string = "refreshTokens";
 
 const RefreshModel = model<IRefreshToken>(
     refreshTokenDBName,

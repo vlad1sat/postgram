@@ -1,23 +1,17 @@
 import { type NextFunction, type Request, type Response } from "express";
 import type IRequestUser from "../interfaces/IRequestUser";
 import AuthService from "../servises/AuthService";
-import {
-    type Result,
-    type ValidationError,
-    validationResult,
-} from "express-validator";
 import ApiError from "../utils/logicErrors/ApiError";
 import type IRequestLoginUser from "../interfaces/IRequestLoginUser";
-
-import { type IUserDto } from "../utils/token/UserDto";
-import type CookieRefreshTokenRequest from "../utils/token/CookieRefreshTokenRequest";
-import type IResponseAuth from "../interfaces/IResponseAuth";
+import type RequestCookieRefreshToken from "../utils/token/RequestCookieRefreshToken";
+import type IResponseAuth from "../interfaces/response/IResponseAuth";
 import TokenService, { type IGenerateTokens } from "../servises/TokenService";
+import type IUserDto from "../utils/token/UserDto/IUserDto";
 
 class AuthController {
     async registration(
         req: Request<{}, {}, IRequestUser>,
-        res: Response,
+        res: Response<IResponseAuth>,
         next: NextFunction,
     ): Promise<void> {
         await AuthController.userAuth(
@@ -31,7 +25,7 @@ class AuthController {
 
     async login(
         req: Request<{}, {}, IRequestLoginUser>,
-        res: Response<Promise<{ tokens: IGenerateTokens; user: IUserDto }>>,
+        res: Response<IResponseAuth>,
         next: NextFunction,
     ): Promise<void> {
         await AuthController.userAuth(
@@ -43,12 +37,12 @@ class AuthController {
     }
 
     async refresh(
-        req: CookieRefreshTokenRequest,
-        res: Response,
+        req: RequestCookieRefreshToken,
+        res: Response<IResponseAuth>,
         next: NextFunction,
     ): Promise<void> {
         try {
-            const { refreshToken } = req.cookies;
+            const refreshToken: string = TokenService.haveRefreshToken(req);
             await AuthController.userAuth(
                 req,
                 res,
@@ -61,15 +55,12 @@ class AuthController {
     }
 
     async logout(
-        req: CookieRefreshTokenRequest,
+        req: RequestCookieRefreshToken,
         res: Response,
         next: NextFunction,
     ): Promise<void> {
         try {
-            const { refreshToken } = req.cookies;
-            if (refreshToken === null) {
-                next(ApiError.Unauthorized());
-            }
+            const refreshToken: string = TokenService.haveRefreshToken(req);
             await TokenService.removeRefreshTokenDB(refreshToken);
             res.clearCookie("refreshToken");
             res.sendStatus(200);
@@ -86,11 +77,6 @@ class AuthController {
         statusCode: number = 200,
     ): Promise<void> {
         try {
-            const errors: Result<ValidationError> = validationResult(req);
-            if (!errors.isEmpty()) {
-                next(ApiError.BadRequest("Ошибка валидации", errors.array()));
-                return;
-            }
             const {
                 tokens: { accessToken, refreshToken },
                 user,

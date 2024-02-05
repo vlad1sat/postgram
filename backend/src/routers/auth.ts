@@ -7,12 +7,14 @@ import {
     passwordValidator,
     refreshTokenValidator,
 } from "../middleware/authMiddlewares";
-const authRouter = Router();
+import errorsValidatorMiddleware from "../middleware/errorsValidatorMiddleware";
+const authRouter: Router = Router();
 
 authRouter.post(
     "/login",
     loginValidator("login"),
     passwordValidator,
+    errorsValidatorMiddleware,
     AuthController.login,
 );
 
@@ -21,10 +23,22 @@ authRouter.post(
     loginValidator("username"),
     emailValidator,
     passwordValidator,
+    errorsValidatorMiddleware,
     AuthController.registration,
 );
 
-authRouter.get("/refresh", refreshTokenValidator, AuthController.refresh);
-authRouter.get("/logout", refreshTokenValidator, AuthController.logout);
+authRouter.get(
+    "/refresh",
+    refreshTokenValidator,
+    errorsValidatorMiddleware,
+    AuthController.refresh,
+);
+
+authRouter.get(
+    "/logout",
+    refreshTokenValidator,
+    errorsValidatorMiddleware,
+    AuthController.logout,
+);
 
 export default authRouter;

@@ -1,4 +1,4 @@
-import IApiErrorMessage from "./IApiErrorMessage";
+import type IApiErrorMessage from "./IApiErrorMessage";
 
 export default class ApiError extends Error {
     status: number;
@@ -12,6 +12,14 @@ export default class ApiError extends Error {
 
     static Unauthorized(): ApiError {
         return new ApiError(401, "Пользователь не авторизован!");
+    }
+
+    static NotFound(): ApiError {
+        return new ApiError(404, "Ресурс не найден.");
+    }
+
+    static Forbidden(): ApiError {
+        return new ApiError(403, "Отказано в доступе.");
     }
 
     static BadRequest(message: string, errors: unknown[] = []): ApiError {

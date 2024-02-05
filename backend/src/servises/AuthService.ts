@@ -3,10 +3,10 @@ import { type IUserDB } from "../dal/mongoDB/schemas/users";
 import bcrypt from "bcrypt";
 import User from "../dal/models/User";
 import ApiError from "../utils/logicErrors/ApiError";
-import UserDto from "../utils/token/UserDto";
+import UserDto from "../utils/token/UserDto/UserDto";
 import type IRequestLoginUser from "../interfaces/IRequestLoginUser";
 import { type ITokenDB } from "../dal/mongoDB/schemas/refreshToken";
-import type IResponseAuth from "../interfaces/IResponseAuth";
+import type IResponseAuth from "../interfaces/response/IResponseAuth";
 import UserService from "./UserService";
 import TokenService, { type IGenerateTokens } from "./TokenService";
 
@@ -23,8 +23,10 @@ class AuthService {
             );
         }
         const hashPassword: string = await bcrypt.hash(password, 5);
+        const a = new User({ ...user, password: hashPassword });
+        const b = a.objUser();
         const createdUserDB: IUserDB = await UserService.createUserDB(
-            new User({ ...user, password: hashPassword }),
+            b,
         );
         return await AuthService.tokenUserLogic(createdUserDB);
     }

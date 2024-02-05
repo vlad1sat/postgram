@@ -2,15 +2,26 @@ import type IRefreshToken from "./interfaces/IRefreshToken";
 import { type Types } from "mongoose";
 
 export default class RefreshToken implements IRefreshToken {
-    refreshToken: string;
-    userID: Types.ObjectId;
+    private readonly _refreshToken: string;
+    private readonly _userID: Types.ObjectId;
 
     constructor(refreshToken: string, userID: Types.ObjectId) {
-        this.refreshToken = refreshToken;
-        this.userID = userID;
+        this._refreshToken = refreshToken;
+        this._userID = userID;
+    }
+
+    get userID(): Types.ObjectId {
+        return this._userID;
+    }
+
+    get refreshToken(): string {
+        return this._refreshToken;
     }
 
     objRefreshToken(): IRefreshToken {
-        return { ...this };
+        return {
+            refreshToken: this.refreshToken,
+            userID: this.userID,
+        };
     }
 }

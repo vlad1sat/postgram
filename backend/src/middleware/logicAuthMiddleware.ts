@@ -1,9 +1,12 @@
 import { type NextFunction, type Request, type Response } from "express";
 import ApiError from "../utils/logicErrors/ApiError";
 import TokenService from "../servises/TokenService";
+import UserDto from "../utils/token/UserDto/UserDto";
+import { instanceOfIUserDto } from "../utils/token/UserDto/IUserDto";
+import RequestUserAuth from "../interfaces/RequestUserAuth";
 
 const authMiddleware = (
-    req: Request,
+    req: RequestUserAuth,
     res: Response,
     next: NextFunction,
 ): void => {
@@ -14,11 +17,12 @@ const authMiddleware = (
             return;
         }
         const accessToken: string = authResponse.split(" ")[1];
-        const isCorrectToken = TokenService.correctAccessToken(accessToken);
-        if (isCorrectToken === null) {
+        const correctToken = TokenService.correctAccessToken(accessToken);
+        if (correctToken === null || !instanceOfIUserDto(correctToken)) {
             next(ApiError.Unauthorized());
             return;
         }
+        req.user = correctToken;
         next();
     } catch (e) {
         next(ApiError.Unauthorized());

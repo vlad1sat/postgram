@@ -6,11 +6,16 @@ const letterMessage = (prop: string): string =>
 const lengthMessage = (prop: string): string =>
     `Длинна ${prop} не менее 8 символов.`;
 
+const minLength: number = 8;
+const maxLength: number = 300;
+
 export const loginValidator = (prop: string): ValidationChain =>
     body(prop)
         .notEmpty()
+        .withMessage(`Поле ${prop} обязательно и не может быть пустым.`)
         .isString()
-        .isLength({ min: 8, max: 300 })
+        .withMessage(`Поле ${prop} должно передаваться строкой.`)
+        .isLength({ min: minLength, max: maxLength })
         .withMessage(lengthMessage(prop))
         .matches(/[A-Z, a-z]/)
         .withMessage(letterMessage(prop));
@@ -22,7 +27,7 @@ export const emailValidator: ValidationChain = body("email")
     .withMessage(letterMessage("Email"))
     .isEmail()
     .withMessage("Невалидное значение email.")
-    .isLength({ max: 300 });
+    .isLength({ max: maxLength });
 
 export const refreshTokenValidator: ValidationChain = cookie("refreshToken")
     .notEmpty()
@@ -31,7 +36,7 @@ export const refreshTokenValidator: ValidationChain = cookie("refreshToken")
 export const passwordValidator: ValidationChain = body("password")
     .notEmpty()
     .isString()
-    .isLength({ min: 8, max: 300 })
+    .isLength({ min: minLength, max: maxLength })
     .withMessage(letterMessage("Пароль"))
     .matches(/[A-Z, a-z]/)
     .withMessage(letterMessage("Пароль"))

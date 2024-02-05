@@ -1,5 +1,7 @@
-import type IUser from "../dal/models/interfaces/IUser";
-
-type IRequestUser = Omit<IUser, "createAt">;
+interface IRequestUser {
+    email: string;
+    username: string;
+    password: string;
+}
 
 export default IRequestUser;

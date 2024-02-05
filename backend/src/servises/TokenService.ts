@@ -5,6 +5,8 @@ import RefreshModel, {
     type ITokenDB,
 } from "../dal/mongoDB/schemas/refreshToken";
 import RefreshToken from "../dal/models/RefreshToken";
+import type RequestCookieRefreshToken from "../utils/token/RequestCookieRefreshToken";
+import ApiError from "../utils/logicErrors/ApiError";
 
 const accessKey: string =
     process.env.SECRET_ACCESS_KEY_TOKEN ?? defaultEnv.SECRET_ACCESS_KEY_TOKEN;
@@ -15,6 +17,7 @@ const refreshKey: string =
 const timeRefreshToken: string =
     process.env.VALID_TIME_REFRESH_TOKEN_DAY ??
     defaultEnv.VALID_TIME_REFRESH_TOKEN_DAY;
+
 class TokenService {
     generateToken<T extends object>(payload: T): IGenerateTokens {
         const accessToken: string = jwt.sign(payload, accessKey, {
@@ -48,6 +51,14 @@ class TokenService {
         return TokenService.correctToken(accessToken, accessKey);
     }
 
+    haveRefreshToken(req: RequestCookieRefreshToken): string {
+        const { refreshToken } = req.cookies;
+        if (refreshToken == null) {
+            throw ApiError.Unauthorized();
+        }
+        return refreshToken;
+    }
+
     async findRefreshTokenDB(refreshToken: string): Promise<ITokenDB | null> {
         const tokenDB: ITokenDB | null = await RefreshModel.findOne({
             refreshToken,
@@ -71,7 +82,8 @@ class TokenService {
             await tokenDB.save();
             return;
         }
-        await RefreshModel.create(new RefreshToken(token, userID));
+        const refreshTokenClass = new RefreshToken(token, userID);
+        await RefreshModel.create(refreshTokenClass.objRefreshToken());
     }
 }
 
