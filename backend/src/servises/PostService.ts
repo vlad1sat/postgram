@@ -67,13 +67,14 @@ class PostService {
     }
 
     private static responsePostByDB(postDB: IPostDB): IResponsePost {
-        const { name, description, ownerID, createAt, _id } = postDB;
+        const { name, description, ownerID, createAt, images, _id } = postDB;
         return {
             id: _id,
             name,
             description,
             createAt,
             ownerID,
+            images,
         };
     }
 

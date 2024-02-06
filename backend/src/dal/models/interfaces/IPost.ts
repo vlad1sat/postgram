@@ -5,6 +5,7 @@ interface IPost {
     description: string;
     createAt: string;
     ownerID: Types.ObjectId;
+    images: string[];
 }
 
 export default IPost;

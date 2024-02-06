@@ -1,4 +1,5 @@
 import { body, cookie, param, type ValidationChain } from "express-validator";
+import ApiError from "../utils/logicErrors/ApiError";
 
 export const paramsIDValidator: ValidationChain = param("id")
     .notEmpty()
@@ -16,6 +17,18 @@ export const createPostValidator: ValidationChain[] = [
         .isString()
         .isLength({ max: 10000 })
         .withMessage("Максимум 10000 символов."),
+    body("images")
+        .notEmpty()
+        .custom((images: unknown) => {
+            if (!Array.isArray(images)) {
+                throw ApiError.BadRequest("Поле images должно быть массивом.");
+            }
+            if (!images.every((image: unknown) => typeof image === "string")) {
+                throw ApiError.BadRequest(
+                    "Поле images должно содержать только строки.",
+                );
+            }
+        }),
 ];
 
 export const updatePostValidator: ValidationChain[] = [

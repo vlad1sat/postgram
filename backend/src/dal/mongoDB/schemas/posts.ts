@@ -15,6 +15,12 @@ const PostsSchema = new Schema<IPost>({
         ref: () => userDBName,
         required: true,
     },
+    images: [
+        {
+            type: "String",
+            required: true,
+        },
+    ],
 });
 
 export const postsDBName: string = "posts";
