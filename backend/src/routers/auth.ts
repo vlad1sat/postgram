@@ -13,7 +13,7 @@ const authRouter: Router = Router();
 authRouter.post(
     "/login",
     loginValidator("login"),
-    passwordValidator,
+    passwordValidator(),
     errorsValidatorMiddleware,
     AuthController.login,
 );
@@ -21,22 +21,22 @@ authRouter.post(
 authRouter.post(
     "/registration",
     loginValidator("username"),
-    emailValidator,
-    passwordValidator,
+    emailValidator(),
+    passwordValidator(),
     errorsValidatorMiddleware,
     AuthController.registration,
 );
 
 authRouter.get(
     "/refresh",
-    refreshTokenValidator,
+    refreshTokenValidator(),
     errorsValidatorMiddleware,
     AuthController.refresh,
 );
 
 authRouter.get(
     "/logout",
-    refreshTokenValidator,
+    refreshTokenValidator(),
     errorsValidatorMiddleware,
     AuthController.logout,
 );

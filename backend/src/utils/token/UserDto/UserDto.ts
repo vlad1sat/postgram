@@ -1,5 +1,5 @@
 import { type IUserDB } from "../../../dal/mongoDB/schemas/users";
-import IUserDto from "./IUserDto";
+import type IUserDto from "./IUserDto";
 import type RequestUserAuth from "../../../interfaces/RequestUserAuth";
 import ApiError from "../../logicErrors/ApiError";
 

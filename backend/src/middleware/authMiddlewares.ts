@@ -20,25 +20,26 @@ export const loginValidator = (prop: string): ValidationChain =>
         .matches(/[A-Z, a-z]/)
         .withMessage(letterMessage(prop));
 
-export const emailValidator: ValidationChain = body("email")
-    .notEmpty()
-    .isString()
-    .matches(/[A-Z, a-z]/)
-    .withMessage(letterMessage("Email"))
-    .isEmail()
-    .withMessage("Невалидное значение email.")
-    .isLength({ max: maxLength });
+export const emailValidator = (): ValidationChain =>
+    body("email")
+        .notEmpty()
+        .isString()
+        .matches(/[A-Z, a-z]/)
+        .withMessage(letterMessage("Email"))
+        .isEmail()
+        .withMessage("Невалидное значение email.")
+        .isLength({ max: maxLength });
 
-export const refreshTokenValidator: ValidationChain = cookie("refreshToken")
-    .notEmpty()
-    .isString();
+export const refreshTokenValidator = (): ValidationChain =>
+    cookie("refreshToken").notEmpty().isString();
 
-export const passwordValidator: ValidationChain = body("password")
-    .notEmpty()
-    .isString()
-    .isLength({ min: minLength, max: maxLength })
-    .withMessage(letterMessage("Пароль"))
-    .matches(/[A-Z, a-z]/)
-    .withMessage(letterMessage("Пароль"))
-    .matches(/[0-9]/)
-    .withMessage("Пароль должен содержать цифры.");
+export const passwordValidator = (): ValidationChain =>
+    body("password")
+        .notEmpty()
+        .isString()
+        .isLength({ min: minLength, max: maxLength })
+        .withMessage(letterMessage("Пароль"))
+        .matches(/[A-Z, a-z]/)
+        .withMessage(letterMessage("Пароль"))
+        .matches(/[0-9]/)
+        .withMessage("Пароль должен содержать цифры.");

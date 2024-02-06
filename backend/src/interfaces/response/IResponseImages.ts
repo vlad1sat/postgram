@@ -1,5 +1,5 @@
 interface IResponseImages {
-    srcImages: string[];
+    images: string[];
 }
 
 export default IResponseImages;

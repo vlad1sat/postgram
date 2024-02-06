@@ -10,7 +10,7 @@ const errorMiddleware = (
     if (err instanceof ApiError) {
         return res.status(err.status).json(err.odjMessage());
     }
-    return res.status(500).json(`Ошибка сервера! ${String(err)}`);
+    return res.status(500).json(`Ошибка сервера! ${err.message}`);
 };
 
 export default errorMiddleware;

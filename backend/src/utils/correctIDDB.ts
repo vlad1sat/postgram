@@ -7,4 +7,4 @@ export const correctIDDB = (id: string): Types.ObjectId => {
     } catch {
         throw ApiError.BadRequest("Неверный формат id поста.");
     }
-}
+};

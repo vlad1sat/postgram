@@ -25,9 +25,7 @@ class AuthService {
         const hashPassword: string = await bcrypt.hash(password, 5);
         const a = new User({ ...user, password: hashPassword });
         const b = a.objUser();
-        const createdUserDB: IUserDB = await UserService.createUserDB(
-            b,
-        );
+        const createdUserDB: IUserDB = await UserService.createUserDB(b);
         return await AuthService.tokenUserLogic(createdUserDB);
     }
 

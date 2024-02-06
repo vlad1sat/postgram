@@ -2,8 +2,9 @@ import type fileUpload from "express-fileupload";
 import * as uuid from "uuid";
 import * as path from "path";
 import type IResponseImages from "../interfaces/response/IResponseImages";
+import * as fs from "fs";
 class ImageService {
-    async postImage(
+    async postImages(
         images: fileUpload.UploadedFile[],
     ): Promise<IResponseImages> {
         const srcImages: string[] = await Promise.all(
@@ -20,9 +21,23 @@ class ImageService {
                 },
             ),
         );
+
         return {
-            srcImages,
+            images: srcImages,
         };
+    }
+
+    deleteImages(srcImages: string[]) {
+        srcImages.forEach((srcImage: string) => {
+            const filepath: string = path.resolve("static/images", srcImage);
+            fs.unlink(filepath, (err) => {
+                if (err != null) {
+                    console.log(
+                        `Ошибка удаления изображения ${srcImage}, ${err.message}`,
+                    );
+                }
+            });
+        });
     }
 
     isImage(file: fileUpload.UploadedFile): boolean {

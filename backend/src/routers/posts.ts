@@ -16,7 +16,7 @@ postsRouter.get("/", PostController.getAllPosts);
 
 postsRouter.get(
     "/:id",
-    paramsIDValidator,
+    paramsIDValidator(),
     errorsValidatorMiddleware,
     PostController.getPostByID,
 );
@@ -24,7 +24,7 @@ postsRouter.get(
 postsRouter.post(
     "/",
     logicAuthMiddleware,
-    createPostValidator,
+    createPostValidator(),
     errorsValidatorMiddleware,
     PostController.createPost,
 );
@@ -32,7 +32,7 @@ postsRouter.post(
 postsRouter.put(
     "/",
     logicAuthMiddleware,
-    updatePostValidator,
+    updatePostValidator(),
     errorsValidatorMiddleware,
     PostController.updatePost,
 );
@@ -40,7 +40,7 @@ postsRouter.put(
 postsRouter.delete(
     "/:id",
     logicAuthMiddleware,
-    paramsIDValidator,
+    paramsIDValidator(),
     errorsValidatorMiddleware,
     PostController.deletePost,
 );

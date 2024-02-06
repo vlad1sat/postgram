@@ -7,18 +7,19 @@ import ApiError from "../utils/logicErrors/ApiError";
 import { type Types } from "mongoose";
 import type IRequestUpdatePost from "../interfaces/IRequestUpdatePost";
 import { correctIDDB } from "../utils/correctIDDB";
+import ImageService from "./ImageService";
 
 class PostService {
     async createPost(
         userID: string,
         dataPost: IRequestCreatePost,
     ): Promise<IResponsePost> {
-        const postClass = new Post(dataPost, userID);
-        const postDB: IPostDB = await PostsModel.create(postClass.objPost());
         const userDB: IUserDB | null = await UserModel.findById(userID);
         if (userDB === null) {
             throw Error("Ошибка добавления данных поста.");
         }
+        const postClass = new Post(dataPost, userID);
+        const postDB: IPostDB = await PostsModel.create(postClass.objPost());
 
         userDB.posts.push(postDB._id);
         await userDB.save();
@@ -45,8 +46,8 @@ class PostService {
             requestPost.id,
             userID,
         );
-        const { name, description } = requestPost;
-        await post.updateOne({ name, description });
+        const { name, description, images } = requestPost;
+        await post.updateOne({ name, description, images });
     }
 
     async deletePostByID(id: string, userID: string): Promise<void> {
@@ -54,6 +55,17 @@ class PostService {
             id,
             userID,
         );
+
+        const userPost: IUserDB | null = await UserModel.findById(userID);
+        if (userPost == null) {
+            throw Error("Ошибка добавления данных поста.");
+        }
+
+        userPost.posts = userPost.posts.filter(
+            (postId: Types.ObjectId) => String(postId) !== id,
+        );
+        ImageService.deleteImages(post.images);
+        await userPost.save();
         await post.deleteOne();
     }
 

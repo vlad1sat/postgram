@@ -1,6 +1,6 @@
 import { type Request } from "express";
 import type IUserDto from "../utils/token/UserDto/IUserDto";
-import fileUpload from "express-fileupload";
+import type fileUpload from "express-fileupload";
 
 interface IRequestImages<ReqBody = {}, Params = {}>
     extends Request<Params, {}, ReqBody> {
