@@ -15,12 +15,14 @@ const authMiddleware = (
             next(ApiError.Unauthorized());
             return;
         }
+
         const accessToken: string = authResponse.split(" ")[1];
         const correctToken = TokenService.correctAccessToken(accessToken);
-        if (correctToken === null || !instanceOfIUserDto(correctToken)) {
+        if (!instanceOfIUserDto(correctToken)) {
             next(ApiError.Unauthorized());
             return;
         }
+
         req.user = correctToken;
         next();
     } catch (e) {

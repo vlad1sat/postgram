@@ -1,7 +1,6 @@
 import UserModel, { type IUserDB } from "../dal/mongoDB/schemas/users";
 import type IResponseUser from "../interfaces/response/IResponseUser";
 import ApiError from "../utils/logicErrors/ApiError";
-import type IPost from "../dal/models/interfaces/IPost";
 import { type IPostDB, postsDBName } from "../dal/mongoDB/schemas/posts";
 import PostService from "./PostService";
 import type IResponsePost from "../interfaces/response/IResponsePost";

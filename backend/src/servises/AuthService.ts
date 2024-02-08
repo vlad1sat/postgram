@@ -6,41 +6,35 @@ import ApiError from "../utils/logicErrors/ApiError";
 import UserDto from "../utils/token/UserDto/UserDto";
 import type IRequestLoginUser from "../interfaces/request/IRequestLoginUser";
 import { type ITokenDB } from "../dal/mongoDB/schemas/refreshToken";
-import type IResponseAuth from "../interfaces/response/IResponseAuth";
+import type ILogicAuth from "../interfaces/ILogicAuth";
 import TokenService, { type IGenerateTokens } from "./TokenService";
+import { instanceOfIUserDto } from "../utils/token/UserDto/IUserDto";
 
 class AuthService {
-    async registration(user: IRequestUser): Promise<IResponseAuth> {
+    async registration(user: IRequestUser): Promise<ILogicAuth> {
         const { username, email, password } = user;
-        const userDB: IUserDB | null = await this.findUserDBByFilter(
+        await this.findUserDBByFilter(
+            "Пользователь с такими данными уже существует!",
             { username },
             { email },
         );
-
-        if (userDB !== null) {
-            throw ApiError.BadRequest(
-                "Пользователь с такими данными уже существует!",
-            );
-        }
 
         const hashPassword: string = await bcrypt.hash(password, 5);
         const newUser = new User({ ...user, password: hashPassword });
         const createdUserDB: IUserDB = await UserModel.create(
             newUser.objUser(),
         );
+
         return await AuthService.tokenUserLogic(createdUserDB);
     }
 
-    async login(userData: IRequestLoginUser): Promise<IResponseAuth> {
+    async login(userData: IRequestLoginUser): Promise<ILogicAuth> {
         const { login, password: passwordData } = userData;
-        const userDB: IUserDB | null = await this.findUserDBByFilter(
+        const userDB: IUserDB = await this.findUserDBByFilter(
+            "Такого пользователя не существует!",
             { username: login },
             { email: login },
         );
-
-        if (userDB == null) {
-            throw ApiError.BadRequest("Такого пользователя не существует!");
-        }
 
         const { password } = userDB;
         const isCorrectPassword: boolean = await bcrypt.compare(
@@ -54,7 +48,7 @@ class AuthService {
         return await AuthService.tokenUserLogic(userDB);
     }
 
-    async refresh(refreshToken: string): Promise<IResponseAuth> {
+    async refresh(refreshToken: string): Promise<ILogicAuth> {
         if (refreshToken == null) {
             throw ApiError.Unauthorized();
         }
@@ -62,12 +56,7 @@ class AuthService {
         const userTokenDto = TokenService.correctRefreshToken(refreshToken);
         const tokenDB: ITokenDB | null =
             await TokenService.findRefreshTokenDB(refreshToken);
-        if (
-            userTokenDto == null ||
-            tokenDB == null ||
-            typeof userTokenDto === "string" ||
-            !("id" in userTokenDto)
-        ) {
+        if (!instanceOfIUserDto(userTokenDto) || tokenDB == null) {
             throw ApiError.Unauthorized();
         }
 
@@ -77,14 +66,16 @@ class AuthService {
         if (userDB == null) {
             throw ApiError.Unauthorized();
         }
+
         return await AuthService.tokenUserLogic(userDB);
     }
 
-    private static async tokenUserLogic(user: IUserDB): Promise<IResponseAuth> {
+    private static async tokenUserLogic(user: IUserDB): Promise<ILogicAuth> {
         const userDto: UserDto = new UserDto(user);
         const tokens: IGenerateTokens = TokenService.generateToken({
             ...userDto,
         });
+
         await TokenService.saveRefreshTokenDB(user._id, tokens.refreshToken);
         return {
             tokens,
@@ -93,11 +84,16 @@ class AuthService {
     }
 
     private async findUserDBByFilter(
-        ...filters: object[]
-    ): Promise<IUserDB | null> {
+        messageBagRequest: string,
+        ...filters: Array<Record<PropertyKey, unknown>>
+    ): Promise<IUserDB> {
         const userDB: IUserDB | null = await UserModel.findOne({
             $or: filters,
         });
+
+        if (userDB == null) {
+            throw ApiError.BadRequest(messageBagRequest);
+        }
         return userDB;
     }
 }

@@ -17,7 +17,8 @@ class ImageController {
                 next(ApiError.BadRequest("Некорректный формат передачи файла"));
                 return;
             }
-            const imageSrc = await ImageService.postImages(file);
+            const imageSrc: IResponseImages =
+                await ImageService.postImages(file);
             res.status(200).json(imageSrc);
         } catch (e) {
             next(e);

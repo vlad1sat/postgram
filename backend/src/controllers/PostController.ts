@@ -6,6 +6,7 @@ import type IResponsePost from "../interfaces/response/IResponsePost";
 import type IUserDto from "../utils/token/UserDto/IUserDto";
 import type IRequestUpdatePost from "../interfaces/request/IRequestUpdatePost";
 import UserDto from "../utils/token/UserDto/UserDto";
+import type IParamsID from "../interfaces/IParamsID";
 
 class PostController {
     async getAllPosts(
@@ -41,11 +42,11 @@ class PostController {
         next: NextFunction,
     ): Promise<void> {
         try {
-            const user: IUserDto = UserDto.haveUserData(req);
+            const { id } = UserDto.haveUserData(req);
             const dataUser: IRequestCreatePost = req.body;
 
             const result: IResponsePost = await PostService.createPost(
-                user.id,
+                id,
                 dataUser,
             );
             res.status(201).json(result);
@@ -61,8 +62,8 @@ class PostController {
     ): Promise<void> {
         try {
             const { id } = req.params;
-            const user: IUserDto = UserDto.haveUserData(req);
-            await PostService.deletePostByID(id, user.id);
+            const { id: userID } = UserDto.haveUserData(req);
+            await PostService.deletePostByID(id, userID);
             res.sendStatus(200);
         } catch (e) {
             next(e);
@@ -75,8 +76,8 @@ class PostController {
         next: NextFunction,
     ): Promise<void> {
         try {
-            const user: IUserDto = UserDto.haveUserData(req);
-            await PostService.updatePost(req.body, user.id);
+            const { id } = UserDto.haveUserData(req);
+            await PostService.updatePost(req.body, id);
             res.sendStatus(200);
         } catch (e) {
             next(e);

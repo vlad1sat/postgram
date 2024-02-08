@@ -15,7 +15,7 @@ class PostService {
         dataPost: IRequestCreatePost,
     ): Promise<IResponsePost> {
         const userDB: IUserDB | null = await UserModel.findById(userID);
-        if (userDB === null) {
+        if (userDB == null) {
             throw Error("Ошибка добавления данных поста.");
         }
 
@@ -78,7 +78,7 @@ class PostService {
         const idPost: Types.ObjectId = correctIDDB(id);
         const post: IPostDB | null = await PostsModel.findById(idPost);
 
-        if (post === null) {
+        if (post == null) {
             throw ApiError.NotFound();
         }
         return post;

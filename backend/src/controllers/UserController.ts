@@ -2,6 +2,7 @@ import { type Request, type Response, type NextFunction } from "express";
 import type IResponseUser from "../interfaces/response/IResponseUser";
 import UserService from "../servises/UserService";
 import type IPost from "../dal/models/interfaces/IPost";
+import IParamsID from "../interfaces/IParamsID";
 
 class UserController {
     async getUsers(

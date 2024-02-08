@@ -3,10 +3,6 @@ import type IPost from "./interfaces/IPost";
 import type IRequestCreatePost from "../../interfaces/request/IRequestCreatePost";
 
 export default class Post implements IPost {
-    get images(): string[] {
-        return this._images;
-    }
-
     private readonly _createAt: string;
     private readonly _name: string;
     private readonly _description: string;
@@ -31,6 +27,10 @@ export default class Post implements IPost {
 
     get name(): string {
         return this._name;
+    }
+
+    get images(): string[] {
+        return this._images;
     }
 
     get createAt(): string {

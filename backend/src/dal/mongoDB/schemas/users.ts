@@ -1,6 +1,7 @@
 import { type Document, model, Schema, type Types } from "mongoose";
 import type IUser from "../../models/interfaces/IUser";
 import { postsDBName } from "./posts";
+import DateLogic from "../../../utils/DateLogic";
 
 const UserSchema = new Schema<IUser>({
     email: { type: "String", required: true, unique: true },
@@ -9,7 +10,7 @@ const UserSchema = new Schema<IUser>({
     createAt: {
         type: "String",
         required: true,
-        default: new Date(Date.now()).toISOString(),
+        default: DateLogic.getDateNowToISO(),
     },
     posts: [
         {
