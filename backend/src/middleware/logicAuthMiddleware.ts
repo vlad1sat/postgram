@@ -1,12 +1,11 @@
 import { type NextFunction, type Request, type Response } from "express";
 import ApiError from "../utils/logicErrors/ApiError";
 import TokenService from "../servises/TokenService";
-import UserDto from "../utils/token/UserDto/UserDto";
 import { instanceOfIUserDto } from "../utils/token/UserDto/IUserDto";
-import type RequestUserAuth from "../interfaces/RequestUserAuth";
+import type IRequestUserAuth from "../interfaces/request/IRequestUserAuth";
 
 const authMiddleware = (
-    req: RequestUserAuth,
+    req: IRequestUserAuth,
     res: Response,
     next: NextFunction,
 ): void => {

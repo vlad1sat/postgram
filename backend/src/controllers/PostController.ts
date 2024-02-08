@@ -1,19 +1,11 @@
 import { type NextFunction, type Request, type Response } from "express";
-import type RequestUserAuth from "../interfaces/RequestUserAuth";
-import ApiError from "../utils/logicErrors/ApiError";
+import type IRequestUserAuth from "../interfaces/request/IRequestUserAuth";
 import PostService from "../servises/PostService";
-import type IRequestCreatePost from "../interfaces/IRequestCreatePost";
-import { type IPostDB } from "../dal/mongoDB/schemas/posts";
-import {
-    type Result,
-    type ValidationError,
-    validationResult,
-} from "express-validator";
+import type IRequestCreatePost from "../interfaces/request/IRequestCreatePost";
 import type IResponsePost from "../interfaces/response/IResponsePost";
 import type IUserDto from "../utils/token/UserDto/IUserDto";
-import type IRequestUpdatePost from "../interfaces/IRequestUpdatePost";
+import type IRequestUpdatePost from "../interfaces/request/IRequestUpdatePost";
 import UserDto from "../utils/token/UserDto/UserDto";
-import IResponseAuth from "../interfaces/response/IResponseAuth";
 
 class PostController {
     async getAllPosts(
@@ -30,7 +22,7 @@ class PostController {
     }
 
     async getPostByID(
-        req: RequestUserAuth<{}, { id: string }>,
+        req: Request<{ id: string }>,
         res: Response<IResponsePost>,
         next: NextFunction,
     ): Promise<void> {
@@ -44,7 +36,7 @@ class PostController {
     }
 
     async createPost(
-        req: RequestUserAuth<IRequestCreatePost>,
+        req: IRequestUserAuth<IRequestCreatePost>,
         res: Response<IResponsePost>,
         next: NextFunction,
     ): Promise<void> {
@@ -63,7 +55,7 @@ class PostController {
     }
 
     async deletePost(
-        req: RequestUserAuth<{}, { id: string }>,
+        req: IRequestUserAuth<{}, { id: string }>,
         res: Response,
         next: NextFunction,
     ): Promise<void> {
@@ -78,7 +70,7 @@ class PostController {
     }
 
     async updatePost(
-        req: RequestUserAuth<IRequestUpdatePost>,
+        req: IRequestUserAuth<IRequestUpdatePost>,
         res: Response,
         next: NextFunction,
     ): Promise<void> {

@@ -7,6 +7,7 @@ import {
     paramsIDValidator,
     updatePostValidator,
 } from "../middleware/postsMiddleware";
+import jsonMiddleware from "../middleware/jsonMiddleware";
 
 export { Router } from "express";
 
@@ -25,6 +26,7 @@ postsRouter.post(
     "/",
     logicAuthMiddleware,
     createPostValidator(),
+    jsonMiddleware,
     errorsValidatorMiddleware,
     PostController.createPost,
 );
@@ -32,6 +34,7 @@ postsRouter.post(
 postsRouter.put(
     "/",
     logicAuthMiddleware,
+    jsonMiddleware,
     updatePostValidator(),
     errorsValidatorMiddleware,
     PostController.updatePost,

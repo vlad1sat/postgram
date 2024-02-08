@@ -1,11 +1,11 @@
-import type IRequestCreatePost from "../interfaces/IRequestCreatePost";
+import type IRequestCreatePost from "../interfaces/request/IRequestCreatePost";
 import Post from "../dal/models/Post";
 import PostsModel, { type IPostDB } from "../dal/mongoDB/schemas/posts";
 import UserModel, { type IUserDB } from "../dal/mongoDB/schemas/users";
 import type IResponsePost from "../interfaces/response/IResponsePost";
 import ApiError from "../utils/logicErrors/ApiError";
 import { type Types } from "mongoose";
-import type IRequestUpdatePost from "../interfaces/IRequestUpdatePost";
+import type IRequestUpdatePost from "../interfaces/request/IRequestUpdatePost";
 import { correctIDDB } from "../utils/correctIDDB";
 import ImageService from "./ImageService";
 
@@ -18,24 +18,27 @@ class PostService {
         if (userDB === null) {
             throw Error("Ошибка добавления данных поста.");
         }
+
         const postClass = new Post(dataPost, userID);
         const postDB: IPostDB = await PostsModel.create(postClass.objPost());
 
         userDB.posts.push(postDB._id);
         await userDB.save();
-        return PostService.responsePostByDB(postDB);
+
+        return this.responsePostByDB(postDB);
     }
 
     async getPosts(): Promise<IResponsePost[]> {
         const posts: IPostDB[] = await PostsModel.find();
+
         return posts.map((postDB: IPostDB): IResponsePost => {
-            return PostService.responsePostByDB(postDB);
+            return this.responsePostByDB(postDB);
         });
     }
 
     async getPostByID(id: string): Promise<IResponsePost> {
         const postDB: IPostDB = await PostService.findPostDBByID(id);
-        return PostService.responsePostByDB(postDB);
+        return this.responsePostByDB(postDB);
     }
 
     async updatePost(
@@ -46,6 +49,7 @@ class PostService {
             requestPost.id,
             userID,
         );
+
         const { name, description, images } = requestPost;
         await post.updateOne({ name, description, images });
     }
@@ -64,6 +68,7 @@ class PostService {
         userPost.posts = userPost.posts.filter(
             (postId: Types.ObjectId) => String(postId) !== id,
         );
+
         ImageService.deleteImages(post.images);
         await userPost.save();
         await post.deleteOne();
@@ -72,13 +77,14 @@ class PostService {
     private static async findPostDBByID(id: string): Promise<IPostDB> {
         const idPost: Types.ObjectId = correctIDDB(id);
         const post: IPostDB | null = await PostsModel.findById(idPost);
+
         if (post === null) {
             throw ApiError.NotFound();
         }
         return post;
     }
 
-    private static responsePostByDB(postDB: IPostDB): IResponsePost {
+    public responsePostByDB(postDB: IPostDB): IResponsePost {
         const { name, description, ownerID, createAt, images, _id } = postDB;
         return {
             id: _id,

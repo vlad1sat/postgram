@@ -1,4 +1,4 @@
-import type IRequestUser from "../../../interfaces/IRequestUser";
+import type IRequestUser from "../../../interfaces/request/IRequestUser";
 
 interface IUserDto extends Omit<IRequestUser, "password"> {
     id: string;

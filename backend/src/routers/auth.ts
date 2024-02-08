@@ -8,11 +8,13 @@ import {
     refreshTokenValidator,
 } from "../middleware/authMiddlewares";
 import errorsValidatorMiddleware from "../middleware/errorsValidatorMiddleware";
+import jsonMiddleware from "../middleware/jsonMiddleware";
 const authRouter: Router = Router();
 
 authRouter.post(
     "/login",
     loginValidator("login"),
+    jsonMiddleware,
     passwordValidator(),
     errorsValidatorMiddleware,
     AuthController.login,
@@ -21,6 +23,7 @@ authRouter.post(
 authRouter.post(
     "/registration",
     loginValidator("username"),
+    jsonMiddleware,
     emailValidator(),
     passwordValidator(),
     errorsValidatorMiddleware,

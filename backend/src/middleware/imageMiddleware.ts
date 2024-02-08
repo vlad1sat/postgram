@@ -1,7 +1,7 @@
 import ApiError from "../utils/logicErrors/ApiError";
 import { type Response, type NextFunction } from "express";
 import ImageService from "../servises/ImageService";
-import type IRequestImages from "../interfaces/IRequestImages";
+import type IRequestImages from "../interfaces/request/IRequestImages";
 
 export const imageMiddleware = (
     req: IRequestImages,

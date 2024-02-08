@@ -11,6 +11,7 @@ import fileUpload from "express-fileupload";
 import formDataMiddleware from "./middleware/formDataMiddleware";
 import imageRouter from "./routers/image";
 import { imageMiddleware } from "./middleware/imageMiddleware";
+import usersRouter from "./routers/users";
 
 const PORT = process.env.PORT ?? 5001;
 const app = express();
@@ -28,9 +29,10 @@ app.use(
         abortOnLimit: true,
     }),
 );
-app.use("/auth", jsonMiddleware, authRouter);
-app.use("/posts", jsonMiddleware, postsRouter);
+app.use("/auth", authRouter);
+app.use("/posts", postsRouter);
 app.use("/images", formDataMiddleware, imageMiddleware, imageRouter);
+app.use("/users", usersRouter);
 app.use(errorMiddleware);
 connectDB();
 app.listen(PORT, () => {

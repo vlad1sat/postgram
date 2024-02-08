@@ -1,6 +1,6 @@
 import mongoose, { type Types } from "mongoose";
 import type IPost from "./interfaces/IPost";
-import type IRequestCreatePost from "../../interfaces/IRequestCreatePost";
+import type IRequestCreatePost from "../../interfaces/request/IRequestCreatePost";
 
 export default class Post implements IPost {
     get images(): string[] {

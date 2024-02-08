@@ -1,4 +1,4 @@
-import type IPost from "../dal/models/interfaces/IPost";
+import type IPost from "../../dal/models/interfaces/IPost";
 
 type IRequestCreatePost = Omit<IPost, "createAt" | "ownerID">;
 

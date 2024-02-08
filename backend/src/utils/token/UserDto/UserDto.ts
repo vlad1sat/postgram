@@ -1,6 +1,6 @@
 import { type IUserDB } from "../../../dal/mongoDB/schemas/users";
 import type IUserDto from "./IUserDto";
-import type RequestUserAuth from "../../../interfaces/RequestUserAuth";
+import type IRequestUserAuth from "../../../interfaces/request/IRequestUserAuth";
 import ApiError from "../../logicErrors/ApiError";
 
 export default class UserDto implements IUserDto {
@@ -15,7 +15,7 @@ export default class UserDto implements IUserDto {
         this.email = email;
     }
 
-    static haveUserData(req: RequestUserAuth): IUserDto {
+    static haveUserData(req: IRequestUserAuth): IUserDto {
         const { user } = req;
         if (user == null) {
             throw ApiError.Unauthorized();

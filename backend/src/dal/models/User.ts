@@ -1,5 +1,5 @@
 import type IUser from "./interfaces/IUser";
-import type IRequestUser from "../../interfaces/IRequestUser";
+import type IRequestUser from "../../interfaces/request/IRequestUser";
 import { type Types } from "mongoose";
 
 export default class User implements IUser {

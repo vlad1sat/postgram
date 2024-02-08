@@ -77,11 +77,13 @@ class TokenService {
         const tokenDB: ITokenDB | null = await RefreshModel.findOne({
             userID,
         });
+
         if (tokenDB !== null) {
             tokenDB.refreshToken = token;
             await tokenDB.save();
             return;
         }
+
         const refreshTokenClass = new RefreshToken(token, userID);
         await RefreshModel.create(refreshTokenClass.objRefreshToken());
     }

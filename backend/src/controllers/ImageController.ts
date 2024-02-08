@@ -1,8 +1,9 @@
-import { type Request, type Response, type NextFunction } from "express";
+import { type Response, type NextFunction } from "express";
 import ApiError from "../utils/logicErrors/ApiError";
 import ImageService from "../servises/ImageService";
 import type IResponseImages from "../interfaces/response/IResponseImages";
-import type IRequestImages from "../interfaces/IRequestImages";
+import type IRequestImages from "../interfaces/request/IRequestImages";
+import type fileUpload from "express-fileupload";
 
 class ImageController {
     async postImage(
@@ -11,7 +12,7 @@ class ImageController {
         next: NextFunction,
     ): Promise<void> {
         try {
-            const file = req.images;
+            const file: fileUpload.UploadedFile[] | undefined = req.images;
             if (file == null) {
                 next(ApiError.BadRequest("Некорректный формат передачи файла"));
                 return;
