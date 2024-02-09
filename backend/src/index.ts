@@ -6,12 +6,12 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import errorMiddleware from "./middleware/errorMiddleware";
 import postsRouter from "./routers/posts";
-import jsonMiddleware from "./middleware/jsonMiddleware";
 import fileUpload from "express-fileupload";
 import formDataMiddleware from "./middleware/formDataMiddleware";
 import imageRouter from "./routers/image";
 import { imageMiddleware } from "./middleware/imageMiddleware";
 import usersRouter from "./routers/users";
+import commentsRouter from "./routers/comments";
 
 const PORT = process.env.PORT ?? 5001;
 const app = express();
@@ -33,8 +33,12 @@ app.use("/auth", authRouter);
 app.use("/posts", postsRouter);
 app.use("/images", formDataMiddleware, imageMiddleware, imageRouter);
 app.use("/users", usersRouter);
+app.use("/comments", commentsRouter);
 app.use(errorMiddleware);
-connectDB();
-app.listen(PORT, () => {
-    console.log(`Running on port ${PORT}`);
-});
+
+(async () => {
+    await connectDB();
+    app.listen(PORT, () => {
+        console.log(`Running on port ${PORT}`);
+    });
+})();

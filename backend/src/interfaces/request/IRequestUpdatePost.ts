@@ -1,5 +1,5 @@
-import type IPost from "../../dal/models/interfaces/IPost";
+import type IRequestCreatePost from "./IRequestCreatePost";
 
-type IRequestUpdatePost = Omit<IPost, "createAt" | "ownerID"> & { id: string };
+type IRequestUpdatePost = IRequestCreatePost & { id: string };
 
 export default IRequestUpdatePost;

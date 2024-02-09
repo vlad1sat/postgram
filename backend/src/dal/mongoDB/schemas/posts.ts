@@ -22,12 +22,13 @@ const PostsSchema = new Schema<IPost>({
             required: true,
         },
     ],
+    comments: [{ type: Schema.Types.ObjectId, required: true, default: [] }],
 });
 
 export const postsDBName: string = "posts";
 
-const PostsModel = model<IPost>(postsDBName, PostsSchema);
+const PostModel = model<IPost>(postsDBName, PostsSchema);
 
 export type IPostDB = Document<unknown, {}, IPost> &
     IPost & { _id: Types.ObjectId };
-export default PostsModel;
+export default PostModel;

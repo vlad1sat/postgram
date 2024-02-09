@@ -22,6 +22,13 @@ postsRouter.get(
     PostController.getPostByID,
 );
 
+postsRouter.get(
+    ":id/posts",
+    paramsIDValidator(),
+    errorsValidatorMiddleware,
+    PostController.getCommentsPostID,
+);
+
 postsRouter.post(
     "/",
     logicAuthMiddleware,

@@ -14,7 +14,7 @@ class UserService {
     async getUserByID(id: string): Promise<IResponseUser> {
         const userDB: IUserDB | null = await UserModel.findById(id);
         if (userDB == null) {
-            throw ApiError.BadRequest("Пользователь с таким id не найден.");
+            throw ApiError.NotFound();
         }
         return this.responseUser(userDB);
     }
@@ -22,7 +22,7 @@ class UserService {
     async getPostsUser(userID: string): Promise<IResponsePost[]> {
         const userDB: IUserDB | null = await UserModel.findById(userID);
         if (userDB == null) {
-            throw ApiError.BadRequest("Пользователь с таким id не найден.");
+            throw ApiError.NotFound();
         }
 
         const { posts } = await userDB.populate<{ posts: IPostDB[] }>(

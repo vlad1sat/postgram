@@ -1,4 +1,3 @@
-
 interface IResponseUser {
     id: string;
     username: string;

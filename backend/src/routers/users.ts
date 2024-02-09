@@ -15,7 +15,7 @@ usersRouter.get(
 );
 
 usersRouter.get(
-    "/posts/:id",
+    "/:id/posts",
     paramsIDValidator(),
     errorsValidatorMiddleware,
     UserController.getUserPosts,

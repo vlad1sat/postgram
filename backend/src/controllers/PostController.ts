@@ -3,10 +3,9 @@ import type IRequestUserAuth from "../interfaces/request/IRequestUserAuth";
 import PostService from "../servises/PostService";
 import type IRequestCreatePost from "../interfaces/request/IRequestCreatePost";
 import type IResponsePost from "../interfaces/response/IResponsePost";
-import type IUserDto from "../utils/token/UserDto/IUserDto";
 import type IRequestUpdatePost from "../interfaces/request/IRequestUpdatePost";
 import UserDto from "../utils/token/UserDto/UserDto";
-import type IParamsID from "../interfaces/IParamsID";
+import type IResponseComment from "../interfaces/response/IResponseComment";
 
 class PostController {
     async getAllPosts(
@@ -36,6 +35,21 @@ class PostController {
         }
     }
 
+    async getCommentsPostID(
+        req: Request<{ id: string }>,
+        res: Response<IResponseComment[]>,
+        next: NextFunction,
+    ): Promise<void> {
+        try {
+            const { id: postID } = req.params;
+            const comments: IResponseComment[] =
+                await PostService.getComments(postID);
+            res.status(200).json(comments);
+        } catch (e) {
+            next(e);
+        }
+    }
+
     async createPost(
         req: IRequestUserAuth<IRequestCreatePost>,
         res: Response<IResponsePost>,
@@ -45,11 +59,11 @@ class PostController {
             const { id } = UserDto.haveUserData(req);
             const dataUser: IRequestCreatePost = req.body;
 
-            const result: IResponsePost = await PostService.createPost(
+            const post: IResponsePost = await PostService.createPost(
                 id,
                 dataUser,
             );
-            res.status(201).json(result);
+            res.status(201).json(post);
         } catch (e) {
             next(e);
         }

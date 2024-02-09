@@ -1,6 +1,6 @@
 import type IRequestCreatePost from "../interfaces/request/IRequestCreatePost";
 import Post from "../dal/models/Post";
-import PostsModel, { type IPostDB } from "../dal/mongoDB/schemas/posts";
+import PostModel, { type IPostDB } from "../dal/mongoDB/schemas/posts";
 import UserModel, { type IUserDB } from "../dal/mongoDB/schemas/users";
 import type IResponsePost from "../interfaces/response/IResponsePost";
 import ApiError from "../utils/logicErrors/ApiError";
@@ -8,6 +8,12 @@ import { type Types } from "mongoose";
 import type IRequestUpdatePost from "../interfaces/request/IRequestUpdatePost";
 import { correctIDDB } from "../utils/correctIDDB";
 import ImageService from "./ImageService";
+import type IResponseComment from "../interfaces/response/IResponseComment";
+import {
+    commentsNameDB,
+    type ICommentDB,
+} from "../dal/mongoDB/schemas/comments";
+import CommentService from "./CommentService";
 
 class PostService {
     async createPost(
@@ -20,7 +26,7 @@ class PostService {
         }
 
         const postClass = new Post(dataPost, userID);
-        const postDB: IPostDB = await PostsModel.create(postClass.objPost());
+        const postDB: IPostDB = await PostModel.create(postClass.objPost());
 
         userDB.posts.push(postDB._id);
         await userDB.save();
@@ -29,7 +35,7 @@ class PostService {
     }
 
     async getPosts(): Promise<IResponsePost[]> {
-        const posts: IPostDB[] = await PostsModel.find();
+        const posts: IPostDB[] = await PostModel.find();
 
         return posts.map((postDB: IPostDB): IResponsePost => {
             return this.responsePostByDB(postDB);
@@ -37,7 +43,7 @@ class PostService {
     }
 
     async getPostByID(id: string): Promise<IResponsePost> {
-        const postDB: IPostDB = await PostService.findPostDBByID(id);
+        const postDB: IPostDB = await this.findPostDBByID(id);
         return this.responsePostByDB(postDB);
     }
 
@@ -45,24 +51,21 @@ class PostService {
         requestPost: IRequestUpdatePost,
         userID: string,
     ): Promise<void> {
-        const post: IPostDB = await PostService.correctLogicFindPost(
+        const postDB: IPostDB = await this.correctLogicFindPost(
             requestPost.id,
             userID,
         );
 
         const { name, description, images } = requestPost;
-        await post.updateOne({ name, description, images });
+        await postDB.updateOne({ name, description, images });
     }
 
     async deletePostByID(id: string, userID: string): Promise<void> {
-        const post: IPostDB = await PostService.correctLogicFindPost(
-            id,
-            userID,
-        );
+        const post: IPostDB = await this.correctLogicFindPost(id, userID);
 
         const userPost: IUserDB | null = await UserModel.findById(userID);
         if (userPost == null) {
-            throw Error("Ошибка добавления данных поста.");
+            throw Error("Ошибка удаления данных поста.");
         }
 
         userPost.posts = userPost.posts.filter(
@@ -74,9 +77,17 @@ class PostService {
         await post.deleteOne();
     }
 
-    private static async findPostDBByID(id: string): Promise<IPostDB> {
+    async getComments(postID: string): Promise<IResponseComment[]> {
+        const postDB: IPostDB = await this.findPostDBByID(postID);
+        const { comments } = await postDB.populate<{
+            comments: ICommentDB[];
+        }>(commentsNameDB);
+        return comments.map(CommentService.responseCommentByDB);
+    }
+
+    public async findPostDBByID(id: string): Promise<IPostDB> {
         const idPost: Types.ObjectId = correctIDDB(id);
-        const post: IPostDB | null = await PostsModel.findById(idPost);
+        const post: IPostDB | null = await PostModel.findById(idPost);
 
         if (post == null) {
             throw ApiError.NotFound();
@@ -85,7 +96,8 @@ class PostService {
     }
 
     public responsePostByDB(postDB: IPostDB): IResponsePost {
-        const { name, description, ownerID, createAt, images, _id } = postDB;
+        const { name, description, ownerID, createAt, images, _id, comments } =
+            postDB;
         return {
             id: _id,
             name,
@@ -93,10 +105,11 @@ class PostService {
             createAt,
             ownerID,
             images,
+            comments,
         };
     }
 
-    private static async correctLogicFindPost(
+    private async correctLogicFindPost(
         id: string,
         userID: string,
     ): Promise<IPostDB> {
