@@ -1,4 +1,4 @@
-import { type NextFunction, type Request, type Response } from "express";
+import { type NextFunction, type Response } from "express";
 import ApiError from "../utils/logicErrors/ApiError";
 import TokenService from "../servises/TokenService";
 import { instanceOfIUserDto } from "../utils/token/UserDto/IUserDto";

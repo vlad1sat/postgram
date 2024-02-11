@@ -35,21 +35,6 @@ class PostController {
         }
     }
 
-    async getCommentsPostID(
-        req: Request<{ id: string }>,
-        res: Response<IResponseComment[]>,
-        next: NextFunction,
-    ): Promise<void> {
-        try {
-            const { id: postID } = req.params;
-            const comments: IResponseComment[] =
-                await PostService.getComments(postID);
-            res.status(200).json(comments);
-        } catch (e) {
-            next(e);
-        }
-    }
-
     async createPost(
         req: IRequestUserAuth<IRequestCreatePost>,
         res: Response<IResponsePost>,

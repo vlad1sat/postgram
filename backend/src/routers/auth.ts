@@ -6,9 +6,10 @@ import {
     loginValidator,
     passwordValidator,
     refreshTokenValidator,
-} from "../middleware/authMiddlewares";
+} from "../middleware/requestValues/authMiddleware";
 import errorsValidatorMiddleware from "../middleware/errorsValidatorMiddleware";
-import jsonMiddleware from "../middleware/jsonMiddleware";
+import jsonMiddleware from "../middleware/typeRequest/jsonMiddleware";
+
 const authRouter: Router = Router();
 
 authRouter.post(

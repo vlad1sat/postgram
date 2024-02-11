@@ -1,5 +1,5 @@
 import { Types } from "mongoose";
-import ApiError from "./logicErrors/ApiError";
+import ApiError from "../../utils/logicErrors/ApiError";
 
 export const correctIDDB = (id: string): Types.ObjectId => {
     try {

@@ -14,6 +14,7 @@ const timeRefreshTokenDay: string =
     defaultEnv.VALID_TIME_REFRESH_TOKEN_DAY;
 
 const nameRefreshToken: string = "refreshToken";
+
 class AuthController {
     async registration(
         req: Request<{}, {}, IRequestUser>,

@@ -2,14 +2,22 @@ import { type Request, type Response, type NextFunction } from "express";
 import CommentService from "../servises/CommentService";
 import type IResponseComment from "../interfaces/response/IResponseComment";
 import type IRequestUserAuth from "../interfaces/request/IRequestUserAuth";
-import IUserDto from "../utils/token/UserDto/IUserDto";
 import UserDto from "../utils/token/UserDto/UserDto";
 import type IRequestCreateComment from "../interfaces/request/IRequestCreateComment";
-import type IRequestCreatePost from "../interfaces/request/IRequestCreatePost";
-import UserController from "./UserController";
-import IRequestUpdateComment from "../interfaces/request/IRequestUpdateComment";
+import type IRequestUpdateComment from "../interfaces/request/IRequestUpdateComment";
 
 class CommentController {
+    async getComments(
+        req: Request<{}, {}, {}, { postID?: string }>,
+        res: Response<IResponseComment[]>,
+        next: NextFunction,
+    ): Promise<void> {
+        const { postID } = req.query;
+        const comments: IResponseComment[] =
+            await CommentService.getComments(postID);
+        res.status(200).json(comments);
+    }
+
     async getCommentByID(
         req: Request<{ id: string }>,
         res: Response<IResponseComment>,
@@ -46,10 +54,14 @@ class CommentController {
         res: Response,
         next: NextFunction,
     ): Promise<void> {
-        const { id: userID } = UserDto.haveUserData(req);
-        const dataUpdateComment: IRequestUpdateComment = req.body;
-        await CommentService.updateComment(userID, dataUpdateComment);
-        res.sendStatus(200);
+        try {
+            const { id: userID } = UserDto.haveUserData(req);
+            const dataUpdateComment: IRequestUpdateComment = req.body;
+            await CommentService.updateComment(userID, dataUpdateComment);
+            res.sendStatus(200);
+        } catch (e) {
+            next(e);
+        }
     }
 
     async deleteComment(

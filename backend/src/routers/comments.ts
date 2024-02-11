@@ -1,11 +1,16 @@
 import { Router } from "express";
-import { paramsIDValidator } from "../middleware/postsMiddleware";
+import { paramsIDValidator } from "../middleware/requestValues/postMiddleware";
 import errorsValidatorMiddleware from "../middleware/errorsValidatorMiddleware";
 import CommentController from "../controllers/CommentController";
 import authMiddleware from "../middleware/logicAuthMiddleware";
-import { createComment } from "../middleware/commentMidleware";
+import {
+    createCommentValidator,
+    updateCommentValidator,
+} from "../middleware/requestValues/commentMidleware";
 
 const commentsRouter: Router = Router();
+
+commentsRouter.get("/", CommentController.getComments)
 
 commentsRouter.get(
     "/:id",
@@ -17,12 +22,18 @@ commentsRouter.get(
 commentsRouter.post(
     "/",
     authMiddleware,
-    createComment(),
+    createCommentValidator(),
     errorsValidatorMiddleware,
     CommentController.postComment,
 );
 
-commentsRouter.put("/", authMiddleware, CommentController.updateComment);
+commentsRouter.put(
+    "/",
+    authMiddleware,
+    updateCommentValidator(),
+    errorsValidatorMiddleware,
+    CommentController.updateComment,
+);
 
 commentsRouter.delete(
     "/:id",

@@ -1,5 +1,5 @@
 import { type Request, type Response, type NextFunction } from "express";
-import ApiError from "../utils/logicErrors/ApiError";
+import ApiError from "../../utils/logicErrors/ApiError";
 
 const jsonMiddleware = (
     req: Request,

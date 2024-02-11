@@ -13,11 +13,15 @@ import { instanceOfIUserDto } from "../utils/token/UserDto/IUserDto";
 class AuthService {
     async registration(user: IRequestUser): Promise<ILogicAuth> {
         const { username, email, password } = user;
-        await this.findUserDBByFilter(
-            "Пользователь с такими данными уже существует!",
+        const userDB: IUserDB | null = await this.findUserDBByFilter(
             { username },
             { email },
         );
+        if (userDB != null) {
+            throw ApiError.BadRequest(
+                "Пользователь с такими данными уже существует!",
+            );
+        }
 
         const hashPassword: string = await bcrypt.hash(password, 5);
         const newUser = new User({ ...user, password: hashPassword });
@@ -30,11 +34,14 @@ class AuthService {
 
     async login(userData: IRequestLoginUser): Promise<ILogicAuth> {
         const { login, password: passwordData } = userData;
-        const userDB: IUserDB = await this.findUserDBByFilter(
-            "Такого пользователя не существует!",
+        const userDB: IUserDB | null = await this.findUserDBByFilter(
             { username: login },
             { email: login },
         );
+
+        if (userDB == null) {
+            throw ApiError.BadRequest("Такого пользователя не существует!");
+        }
 
         const { password } = userDB;
         const isCorrectPassword: boolean = await bcrypt.compare(
@@ -84,16 +91,11 @@ class AuthService {
     }
 
     private async findUserDBByFilter(
-        messageBagRequest: string,
         ...filters: Array<Record<PropertyKey, unknown>>
-    ): Promise<IUserDB> {
+    ): Promise<IUserDB | null> {
         const userDB: IUserDB | null = await UserModel.findOne({
             $or: filters,
         });
-
-        if (userDB == null) {
-            throw ApiError.BadRequest(messageBagRequest);
-        }
         return userDB;
     }
 }

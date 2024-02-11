@@ -6,7 +6,7 @@ import type IResponsePost from "../interfaces/response/IResponsePost";
 import ApiError from "../utils/logicErrors/ApiError";
 import { type Types } from "mongoose";
 import type IRequestUpdatePost from "../interfaces/request/IRequestUpdatePost";
-import { correctIDDB } from "../utils/correctIDDB";
+import { correctIDDB } from "../dal/mongoDB/correctIDDB";
 import ImageService from "./ImageService";
 import type IResponseComment from "../interfaces/response/IResponseComment";
 import {
@@ -56,8 +56,8 @@ class PostService {
             userID,
         );
 
-        const { name, description, images } = requestPost;
-        await postDB.updateOne({ name, description, images });
+        const newPost = new Post(requestPost, userID);
+        await postDB.updateOne(newPost.objPost());
     }
 
     async deletePostByID(id: string, userID: string): Promise<void> {
@@ -75,14 +75,6 @@ class PostService {
         ImageService.deleteImages(post.images);
         await userPost.save();
         await post.deleteOne();
-    }
-
-    async getComments(postID: string): Promise<IResponseComment[]> {
-        const postDB: IPostDB = await this.findPostDBByID(postID);
-        const { comments } = await postDB.populate<{
-            comments: ICommentDB[];
-        }>(commentsNameDB);
-        return comments.map(CommentService.responseCommentByDB);
     }
 
     public async findPostDBByID(id: string): Promise<IPostDB> {
@@ -105,7 +97,6 @@ class PostService {
             createAt,
             ownerID,
             images,
-            comments,
         };
     }
 

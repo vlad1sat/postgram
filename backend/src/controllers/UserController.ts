@@ -2,7 +2,7 @@ import { type Request, type Response, type NextFunction } from "express";
 import type IResponseUser from "../interfaces/response/IResponseUser";
 import UserService from "../servises/UserService";
 import type IPost from "../dal/models/interfaces/IPost";
-import IParamsID from "../interfaces/IParamsID";
+import IResponsePost from "../interfaces/response/IResponsePost";
 
 class UserController {
     async getUsers(
@@ -34,12 +34,12 @@ class UserController {
 
     async getUserPosts(
         req: Request<{ id: string }>,
-        res: Response<IPost[]>,
+        res: Response<IResponsePost[]>,
         next: NextFunction,
     ): Promise<void> {
         try {
             const { id: userID } = req.params;
-            const postsUser: IPost[] = await UserService.getPostsUser(userID);
+            const postsUser: IResponsePost[] = await UserService.getPostsUser(userID);
             res.status(200).json(postsUser);
         } catch (e) {
             next(e);

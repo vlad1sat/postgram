@@ -18,10 +18,14 @@ const timeRefreshToken: string =
     process.env.VALID_TIME_REFRESH_TOKEN_DAY ??
     defaultEnv.VALID_TIME_REFRESH_TOKEN_DAY;
 
+const timeAccessToken: string =
+    process.env.VALID_TIME_ACCESS_TOKEN_MINUTE ??
+    defaultEnv.VALID_TIME_ACCESS_TOKEN_MINUTE;
+
 class TokenService {
     generateToken<T extends object>(payload: T): IGenerateTokens {
         const accessToken: string = jwt.sign(payload, accessKey, {
-            expiresIn: "30m",
+            expiresIn: timeAccessToken + "m",
         });
         const refreshToken: string = jwt.sign(payload, refreshKey, {
             expiresIn: timeRefreshToken + "d",
@@ -78,7 +82,7 @@ class TokenService {
             userID,
         });
 
-        if (tokenDB !== null) {
+        if (tokenDB != null) {
             tokenDB.refreshToken = token;
             await tokenDB.save();
             return;

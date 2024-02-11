@@ -18,5 +18,5 @@ export const createPostValidator = (): ValidationChain[] => [
 
 export const updatePostValidator = (): ValidationChain[] => [
     ...createPostValidator(),
-    body("id").notEmpty().isString(),
+    body("id").notEmpty().isString().isLength({ max: 1000 }),
 ];

@@ -1,6 +1,6 @@
 import { Router } from "express";
 import UserController from "../controllers/UserController";
-import { paramsIDValidator } from "../middleware/postsMiddleware";
+import { paramsIDValidator } from "../middleware/requestValues/postMiddleware";
 import errorsValidatorMiddleware from "../middleware/errorsValidatorMiddleware";
 
 const usersRouter: Router = Router();

@@ -4,6 +4,7 @@ const defaultEnv = {
     SECRET_ACCESS_KEY_TOKEN: "token-access",
     SECRET_REFRESH_KEY_TOKEN: "token-refresh",
     VALID_TIME_REFRESH_TOKEN_DAY: "30",
+    VALID_TIME_ACCESS_TOKEN_MINUTE: "15",
 };
 
 export default defaultEnv;

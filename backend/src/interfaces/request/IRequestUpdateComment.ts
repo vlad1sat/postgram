@@ -1,6 +1,5 @@
 import type IRequestCreateComment from "./IRequestCreateComment";
-import { type Types } from "mongoose";
 
-type IRequestUpdateComment = IRequestCreateComment & { id: Types.ObjectId };
+type IRequestUpdateComment = IRequestCreateComment & { id: string };
 
 export default IRequestUpdateComment;

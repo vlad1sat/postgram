@@ -6,8 +6,8 @@ import {
     createPostValidator,
     paramsIDValidator,
     updatePostValidator,
-} from "../middleware/postsMiddleware";
-import jsonMiddleware from "../middleware/jsonMiddleware";
+} from "../middleware/requestValues/postMiddleware";
+import jsonMiddleware from "../middleware/typeRequest/jsonMiddleware";
 
 export { Router } from "express";
 
@@ -22,18 +22,11 @@ postsRouter.get(
     PostController.getPostByID,
 );
 
-postsRouter.get(
-    ":id/posts",
-    paramsIDValidator(),
-    errorsValidatorMiddleware,
-    PostController.getCommentsPostID,
-);
-
 postsRouter.post(
     "/",
     logicAuthMiddleware,
-    createPostValidator(),
     jsonMiddleware,
+    createPostValidator(),
     errorsValidatorMiddleware,
     PostController.createPost,
 );

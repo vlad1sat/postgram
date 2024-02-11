@@ -5,14 +5,28 @@ import type IRequestCreateComment from "../interfaces/request/IRequestCreateComm
 import PostService from "./PostService";
 import Comment from "../dal/models/Comment";
 import { type Types } from "mongoose";
-import { correctIDDB } from "../utils/correctIDDB";
+import { correctIDDB } from "../dal/mongoDB/correctIDDB";
 import { type IPostDB } from "../dal/mongoDB/schemas/posts";
-import type IRequestUpdatePost from "../interfaces/request/IRequestUpdatePost";
 import type IRequestUpdateComment from "../interfaces/request/IRequestUpdateComment";
 
 class CommentService {
+    async getComments(id: string | undefined): Promise<IResponseComment[]> {
+        let commentsDB: ICommentDB[];
+
+        if (id == null) {
+            commentsDB = await CommentModel.find();
+        } else {
+            const postID: Types.ObjectId = correctIDDB(id);
+            commentsDB = await CommentModel.find({ postID });
+        }
+
+        return commentsDB.map(this.responseCommentByDB);
+    }
+
     async getCommentByID(id: string): Promise<IResponseComment> {
-        const commentDB: ICommentDB | null = await CommentModel.findById(id);
+        const commentID: Types.ObjectId = correctIDDB(id);
+        const commentDB: ICommentDB | null =
+            await CommentModel.findById(commentID);
         if (commentDB == null) {
             throw ApiError.NotFound();
         }
@@ -63,14 +77,13 @@ class CommentService {
         dataComment: IRequestUpdateComment,
     ): Promise<void> {
         const commentDB: ICommentDB = await this.findCommentDBByID(
-            String(dataComment.id),
+            dataComment.id,
         );
         if (String(commentDB.ownerID) !== userID) {
             throw ApiError.Forbidden();
         }
 
-        const newComment = new Comment(dataComment, userID);
-        await commentDB.updateOne(newComment.objComment());
+        await commentDB.updateOne({ ...dataComment, isUpdated: true });
     }
 
     public async findCommentDBByID(id: string): Promise<ICommentDB> {
