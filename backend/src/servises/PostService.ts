@@ -8,12 +8,6 @@ import { type Types } from "mongoose";
 import type IRequestUpdatePost from "../interfaces/request/IRequestUpdatePost";
 import { correctIDDB } from "../dal/mongoDB/correctIDDB";
 import ImageService from "./ImageService";
-import type IResponseComment from "../interfaces/response/IResponseComment";
-import {
-    commentsNameDB,
-    type ICommentDB,
-} from "../dal/mongoDB/schemas/comments";
-import CommentService from "./CommentService";
 
 class PostService {
     async createPost(
@@ -34,8 +28,9 @@ class PostService {
         return this.responsePostByDB(postDB);
     }
 
-    async getPosts(): Promise<IResponsePost[]> {
-        const posts: IPostDB[] = await PostModel.find();
+    async getPosts(search: string | undefined): Promise<IResponsePost[]> {
+        const searchLogic = search != null ? { name: { $regex: search } } : {};
+        const posts: IPostDB[] = await PostModel.find(searchLogic);
 
         return posts.map((postDB: IPostDB): IResponsePost => {
             return this.responsePostByDB(postDB);

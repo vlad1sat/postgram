@@ -9,12 +9,13 @@ import type IResponseComment from "../interfaces/response/IResponseComment";
 
 class PostController {
     async getAllPosts(
-        req: Request,
+        req: Request<{}, {}, {}, {search?: string}>,
         res: Response<IResponsePost[]>,
         next: NextFunction,
     ): Promise<void> {
         try {
-            const posts: IResponsePost[] = await PostService.getPosts();
+            const { search } = req.query;
+            const posts: IResponsePost[] = await PostService.getPosts(search);
             res.status(200).json(posts);
         } catch (e) {
             next(e);
